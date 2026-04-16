@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Propiedades – Hogar Ideal Perú</title>
+  <meta name="description" content="Catálogo de propiedades verificadas en Lima y provincias. Casas, departamentos, terrenos y locales comerciales.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════
+       TOKENS
+    ═══════════════════════════════════════════ */
+    :root {
+      --primary:      #FACC15;
+      --primary-light:#FDE047;
+      --accent:       #FACC15;
+      --accent-light: #FDE047;
+
+      --bg:        #111111;
+      --bg-card:   #1a1a1a;
+      --text:      #f1f5f9;
+      --text-2:    #94a3b8;
+      --text-3:    #64748b;
+      --border:    #1e293b;
+      --border-light:#1e293b;
+
+      --green:  #22c55e; --green-bg:  rgba(34,197,94,.12);
+      --blue:   #3b82f6; --blue-bg:   rgba(59,130,246,.12);
+      --gold:   #f59e0b; --gold-bg:   rgba(245,158,11,.15);
+      --purple: #8b5cf6; --purple-bg: rgba(139,92,246,.12);
+      --teal:   #14b8a6; --teal-bg:   rgba(20,184,166,.12);
+
+      --navbar-h: 68px;
+      --shadow:    0 1px 3px rgba(0,0,0,.4);
+      --shadow-md: 0 6px 20px rgba(0,0,0,.4);
+      --shadow-lg: 0 16px 48px rgba(0,0,0,.5);
+      --radius:    14px;
+      --radius-sm: 10px;
+      --ease:      cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ═══════════════════════════════════════════
+       RESET
+    ═══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background .3s var(--ease), color .3s var(--ease);
+    }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; font-family: inherit; }
+    img { display: block; max-width: 100%; }
+
+    /* ═══════════════════════════════════════════
+       NAVBAR
+    ═══════════════════════════════════════════ */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      height: var(--navbar-h);
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 2rem; gap: 2rem;
+      box-shadow: var(--shadow);
+      transition: background .3s, box-shadow .3s;
+    }
+    .navbar.scrolled { box-shadow: 0 4px 24px rgba(0,0,0,.15); }
+    .navbar__brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; font-weight: 600;
+      color: #fff; white-space: nowrap;
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .navbar__brand span { color: var(--accent); }
+    .navbar__nav {
+      display: flex; align-items: center; gap: .25rem;
+      list-style: none; margin-left: auto;
+    }
+    .navbar__nav a {
+      padding: .45rem .85rem; border-radius: var(--radius-sm);
+      font-size: .875rem; font-weight: 500; color: var(--text-2);
+      transition: all .2s;
+    }
+    .navbar__nav a:hover { color: var(--primary); background: var(--border-light); }
+    .navbar__nav a.active { color: var(--accent); font-weight: 700; }
+    .navbar__cta {
+      background: var(--primary); color: #fff !important;
+      padding: .45rem 1rem; border-radius: var(--radius-sm);
+      font-size: .875rem; font-weight: 600;
+      transition: all .2s !important;
+    }
+    .navbar__cta:hover { background: var(--primary-light) !important; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+    .navbar__hamburger {
+      display: none; background: none;
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      padding: .45rem; color: var(--text-3); font-size: 1.1rem;
+    }
+    .navbar__mobile {
+      position: fixed; top: var(--navbar-h); left: 0; right: 0;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      display: flex; flex-direction: column; gap: .25rem;
+      box-shadow: var(--shadow-lg); z-index: 99;
+      animation: slideDown .2s var(--ease);
+    }
+    .navbar__mobile a {
+      padding: .65rem .75rem; border-radius: var(--radius-sm);
+      font-weight: 500; color: var(--text-2); transition: all .2s;
+    }
+    .navbar__mobile a:hover { background: var(--border-light); color: var(--primary); }
+    @keyframes slideDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:none; } }
+
+    /* ═══════════════════════════════════════════
+       HERO BANNER (listado)
+    ═══════════════════════════════════════════ */
+    .listado-hero {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 2rem;
+      position: relative; overflow: hidden;
+    }
+    .listado-hero__inner {
+      max-width: 1200px; margin: 0 auto;
+      position: relative; z-index: 1;
+    }
+    .listado-hero__tag {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(250,204,21,.15); border: 1px solid rgba(250,204,21,.3);
+      color: var(--accent); border-radius: 999px;
+      padding: .3rem .85rem; font-size: .75rem; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase;
+      margin-bottom: .85rem;
+    }
+    .listado-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem; color: var(--text); font-weight: 600;
+      line-height: 1.2; margin-bottom: .6rem;
+    }
+    .listado-hero h1 em { color: var(--accent); font-style: italic; }
+    .listado-hero p { color: var(--text-2); font-size: .95rem; }
+
+    /* Stats inline */
+    .hero-stats {
+      display: flex; gap: 2rem; margin-top: 1.5rem; flex-wrap: wrap;
+    }
+    .hero-stat { text-align: left; }
+    .hero-stat__num {
+      font-size: 1.6rem; font-weight: 800; color: var(--text);
+      letter-spacing: -.03em; line-height: 1;
+    }
+    .hero-stat__lbl { font-size: .75rem; color: var(--text-3); margin-top: .15rem; }
+
+    /* ═══════════════════════════════════════════
+       FILTER BAR
+    ═══════════════════════════════════════════ */
+    .filter-bar {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: var(--navbar-h); z-index: 80;
+      transition: background .3s;
+    }
+    .filter-bar__inner {
+      max-width: 1200px; margin: 0 auto;
+      padding: .85rem 2rem;
+      display: flex; align-items: center; gap: .75rem;
+      flex-wrap: wrap;
+    }
+    .filter-bar__label {
+      font-size: .78rem; font-weight: 700; color: var(--text-3);
+      letter-spacing: .05em; text-transform: uppercase;
+      margin-right: .25rem; white-space: nowrap;
+    }
+    .filter-btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .45rem 1rem; border-radius: 999px;
+      font-size: .82rem; font-weight: 600;
+      border: 1.5px solid var(--border);
+      background: none; color: var(--text-2);
+      transition: all .2s var(--ease); white-space: nowrap;
+    }
+    .filter-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(17,17,17,.04); }
+    .filter-btn.active {
+      background: var(--primary); color: #fff; border-color: var(--primary);
+      box-shadow: 0 2px 10px rgba(17,17,17,.25);
+    }
+    .filter-count {
+      font-size: .7rem; background: rgba(255,255,255,.2);
+      padding: .1rem .4rem; border-radius: 999px; font-weight: 700;
+    }
+    .filter-btn:not(.active) .filter-count { background: var(--border); color: var(--text-3); }
+
+    /* Sort dropdown */
+    .sort-select {
+      margin-left: auto; padding: .45rem .9rem;
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      font-size: .82rem; font-weight: 500;
+      color: var(--text-2); background: var(--bg-card);
+      cursor: pointer; outline: none; transition: border-color .2s;
+      appearance: none; padding-right: 2rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='3'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right .6rem center;
+    }
+    .sort-select:focus { border-color: var(--primary); }
+
+    /* Results count */
+    .results-bar {
+      max-width: 1200px; margin: 0 auto;
+      padding: 1.25rem 2rem .25rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .results-count { font-size: .85rem; color: var(--text-3); }
+    .results-count strong { color: var(--text); }
+    .view-toggle { display: flex; gap: .25rem; }
+    .view-btn {
+      width: 34px; height: 34px; border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border); background: none;
+      color: var(--text-3); display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    .view-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    /* ═══════════════════════════════════════════
+       PROPERTY GRID
+    ═══════════════════════════════════════════ */
+    .catalog {
+      max-width: 1200px; margin: 0 auto;
+      padding: 1.25rem 2rem 4rem;
+    }
+    .props-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .props-grid.list-view { grid-template-columns: 1fr; }
+
+    /* PROPERTY CARD */
+    .prop-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: all .25s var(--ease);
+      animation: fadeUp .4s var(--ease) both;
+      display: flex; flex-direction: column;
+    }
+    .prop-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(17,17,17,.15);
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(16px); }
+      to   { opacity:1; transform:none; }
+    }
+    .prop-card:nth-child(1) { animation-delay: .05s; }
+    .prop-card:nth-child(2) { animation-delay: .10s; }
+    .prop-card:nth-child(3) { animation-delay: .15s; }
+    .prop-card:nth-child(4) { animation-delay: .20s; }
+    .prop-card:nth-child(5) { animation-delay: .25s; }
+    .prop-card:nth-child(6) { animation-delay: .30s; }
+    .prop-card:nth-child(7) { animation-delay: .35s; }
+    .prop-card:nth-child(8) { animation-delay: .40s; }
+
+    /* Image */
+    .prop-card__img {
+      position: relative; height: 200px; overflow: hidden;
+      background: linear-gradient(135deg, #111111 0%, #2a4494 100%);
+      flex-shrink: 0;
+    }
+    .prop-card__img img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .4s var(--ease);
+    }
+    .prop-card:hover .prop-card__img img { transform: scale(1.07); }
+    .prop-card__img-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3.5rem;
+    }
+
+
+    .prop-card__price {
+      position: absolute; bottom: .75rem; right: .75rem;
+      background: rgba(0,0,0,.75); color: #fff;
+      padding: .3rem .75rem; border-radius: 999px;
+      font-size: .82rem; font-weight: 800;
+      backdrop-filter: blur(8px);
+      letter-spacing: -.01em;
+    }
+
+
+    /* Body */
+    .prop-card__body {
+      padding: 1.1rem 1.25rem;
+      display: flex; flex-direction: column; flex: 1;
+    }
+    .prop-card__title {
+      font-size: .95rem; font-weight: 700;
+      color: var(--text); line-height: 1.35; margin-bottom: .35rem;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .prop-card__loc {
+      font-size: .78rem; color: var(--text-3);
+      display: flex; align-items: center; gap: .3rem;
+      margin-bottom: .85rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* Features pills */
+    .prop-card__feats {
+      display: flex; flex-wrap: wrap; gap: .4rem;
+      margin-bottom: 1rem;
+    }
+    .feat-pill {
+      display: inline-flex; align-items: center; gap: .3rem;
+      background: rgba(255,255,255,.06); border-radius: 999px;
+      padding: .2rem .65rem; font-size: .72rem; font-weight: 600;
+      color: var(--text-2); white-space: nowrap;
+    }
+
+    /* Footer */
+    .prop-card__foot {
+      margin-top: auto;
+      padding-top: .85rem;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: .5rem;
+    }
+    .prop-card__agent {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .78rem; color: var(--text-3); min-width: 0;
+    }
+    .agent-av {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; font-weight: 800; color: #fff; flex-shrink: 0;
+    }
+    .prop-card__btn {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .4rem .9rem; border-radius: var(--radius-sm);
+      background: var(--primary); color: #fff; border: none;
+      font-size: .78rem; font-weight: 700;
+      transition: all .2s; white-space: nowrap;
+    }
+    .prop-card__btn:hover { background: var(--primary-light); transform: translateY(-1px); }
+
+    /* LIST VIEW override */
+    .list-view .prop-card { flex-direction: row; height: 160px; }
+    .list-view .prop-card__img { width: 200px; height: 160px; flex-shrink: 0; }
+    .list-view .prop-card__body { flex-direction: row; align-items: center; gap: 1rem; }
+    .list-view .prop-card__title { -webkit-line-clamp: 1; margin-bottom: .2rem; }
+    .list-view .prop-card__feats { margin-bottom: 0; }
+    .list-view .prop-card__foot { border-top: none; padding-top: 0; flex-direction: column; align-items: flex-end; flex-shrink: 0; }
+
+    /* ═══════════════════════════════════════════
+       NO RESULTS
+    ═══════════════════════════════════════════ */
+    .no-results {
+      text-align: center; padding: 4rem 2rem;
+      color: var(--text-3); display: none;
+    }
+    .no-results__icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .no-results h3 { font-size: 1.1rem; color: var(--text-2); margin-bottom: .5rem; }
+
+    /* ═══════════════════════════════════════════
+       PAGINATION
+    ═══════════════════════════════════════════ */
+    .pagination {
+      display: flex; justify-content: center; align-items: center;
+      gap: .4rem; margin-top: 2.5rem;
+    }
+    .page-btn {
+      width: 38px; height: 38px; border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      color: var(--text-2); font-size: .85rem; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    .page-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .page-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .page-btn:disabled { opacity: .4; pointer-events: none; }
+
+    /* ═══════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════ */
+    .site-footer {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      color: var(--text-2);
+      text-align: center; padding: 1.5rem 2rem;
+      font-size: .82rem;
+    }
+    .site-footer strong { color: var(--accent); }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════ */
+    @media (max-width: 1024px) { .props-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) {
+      .navbar__nav { display: none; }
+      .navbar__hamburger { display: flex; }
+      .listado-hero h1 { font-size: 1.6rem; }
+      .props-grid { grid-template-columns: 1fr; }
+      .catalog { padding: 1rem 1rem 3rem; }
+      .filter-bar__inner { padding: .75rem 1rem; gap: .5rem; }
+      .results-bar { padding: .75rem 1rem .1rem; }
+      .sort-select { margin-left: 0; }
+      .list-view .prop-card { flex-direction: column; height: auto; }
+      .list-view .prop-card__img { width: 100%; height: 200px; }
+      .list-view .prop-card__body { flex-direction: column; align-items: flex-start; }
+      .list-view .prop-card__foot { flex-direction: row; border-top: 1px solid var(--border); padding-top: .85rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════ NAVBAR ══════════════════ -->
+<nav class="navbar" id="navbar">
+  <a href="#" class="navbar__brand">🏠 Hogar <span>Ideal</span> Perú</a>
+
+  <ul class="navbar__nav">
+    <li><a href="#">Inicio</a></li>
+    <li><a href="#" class="active">Propiedades</a></li>
+    <li><a href="#">Contacto</a></li>
+    <li><a href="login-preview.html" class="navbar__cta">Panel Admin</a></li>
+  </ul>
+
+
+  <button class="navbar__hamburger" id="hamburger" title="Menú">☰</button>
+</nav>
+
+<!-- Mobile menu -->
+<div id="mobile-menu" style="display:none" class="navbar__mobile">
+  <a href="#">Inicio</a>
+  <a href="#">Propiedades</a>
+  <a href="#">Contacto</a>
+  <a href="login-preview.html">Panel Admin</a>
+</div>
+
+<!-- ══════════════════ HERO ══════════════════ -->
+<section class="listado-hero">
+  <div class="listado-hero__inner">
+    <div class="listado-hero__tag">✦ Propiedades verificadas</div>
+    <h1>Encuentra tu <em>hogar ideal</em><br>en Lima y provincias</h1>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat__num" id="cnt-props">0</div>
+        <div class="hero-stat__lbl">Propiedades</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat__num" id="cnt-agents">0</div>
+        <div class="hero-stat__lbl">Agentes</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat__num">100%</div>
+        <div class="hero-stat__lbl">Verificadas</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ FILTER BAR ══════════════════ -->
+<div class="filter-bar">
+  <div class="filter-bar__inner">
+    <span class="filter-bar__label">Filtrar:</span>
+    <button class="filter-btn active" data-filter="all">
+      Todos <span class="filter-count" id="fc-all">6</span>
+    </button>
+    <button class="filter-btn" data-filter="casa">
+      Casas <span class="filter-count" id="fc-casa">2</span>
+    </button>
+    <button class="filter-btn" data-filter="departamento">
+      Deptos. <span class="filter-count" id="fc-depto">2</span>
+    </button>
+    <button class="filter-btn" data-filter="terreno">
+      Terrenos <span class="filter-count" id="fc-terreno">1</span>
+    </button>
+    <button class="filter-btn" data-filter="local">
+      Locales <span class="filter-count" id="fc-local">1</span>
+    </button>
+
+    <select class="sort-select" id="sort-select">
+      <option value="recent">Más recientes</option>
+      <option value="price-asc">Precio: menor a mayor</option>
+      <option value="price-desc">Precio: mayor a menor</option>
+      <option value="m2">Mayor área (m²)</option>
+    </select>
+  </div>
+</div>
+
+<!-- ══════════════════ RESULTS BAR ══════════════════ -->
+<div class="results-bar">
+  <p class="results-count">Mostrando <strong id="count-label">8</strong> propiedades</p>
+  <div class="view-toggle">
+    <button class="view-btn active" id="btn-grid" title="Vista cuadrícula">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    </button>
+    <button class="view-btn" id="btn-list" title="Vista lista">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════ CATALOG GRID ══════════════════ -->
+<main class="catalog">
+  <div class="props-grid" id="props-grid">
+
+    <!-- CARD 1 -->
+    <article class="prop-card" data-tipo="casa" data-precio="450000" data-m2="280" data-fecha="2026-04-13">
+      <div class="prop-card__img">
+        <div class="prop-card__img-placeholder">🏡</div>
+        <span class="prop-card__price">S/ 450,000</span>
+
+      </div>
+      <div class="prop-card__body">
+        <h3 class="prop-card__title">Casa Moderna en Santiago de Surco</h3>
+
+
+        <div class="prop-card__foot">
+          <div class="prop-card__agent">
+            <div class="agent-av" style="background:linear-gradient(135deg,#111111,#FACC15)">G</div>
+            <span>Gabriel Gamero</span>
+          </div>
+          <button class="prop-card__btn" onclick="verDetalle('Casa Moderna en Santiago de Surco')">
+            Ver más →
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <!-- CARD 2 -->
+    <article class="prop-card" data-tipo="departamento" data-precio="280000" data-m2="120" data-fecha="2026-04-12">
+      <div class="prop-card__img">
+        <div class="prop-card__img-placeholder" style="background:linear-gradient(135deg,#5b21b6,#8b5cf6)">🏢</div>
+
+        <span class="prop-card__price">S/ 280,000</span>
+
+      </div>
+      <div class="prop-card__body">
+        <h3 class="prop-card__title">Departamento en Miraflores con Vista al Mar</h3>
+
+
+        <div class="prop-card__foot">
+          <div class="prop-card__agent">
+            <div class="agent-av" style="background:linear-gradient(135deg,#0369a1,#38bdf8)">JP</div>
+            <span>Jean Pierre Garcia</span>
+          </div>
+          <button class="prop-card__btn" onclick="verDetalle('Departamento en Miraflores')">Ver más →</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- CARD 3 -->
+    <article class="prop-card" data-tipo="casa" data-precio="520000" data-m2="350" data-fecha="2026-04-11">
+      <div class="prop-card__img">
+        <div class="prop-card__img-placeholder" style="background:linear-gradient(135deg,#111111,#1a1a1a)">🏠</div>
+
+        <span class="prop-card__price">S/ 520,000</span>
+
+      </div>
+      <div class="prop-card__body">
+        <h3 class="prop-card__title">Casa Condominio en La Molina</h3>
+
+
+        <div class="prop-card__foot">
+          <div class="prop-card__agent">
+            <div class="agent-av" style="background:linear-gradient(135deg,#111111,#FACC15)">G</div>
+            <span>Gabriel Gamero</span>
+          </div>
+          <button class="prop-card__btn" onclick="verDetalle('Casa La Molina')">Ver más →</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- CARD 4 -->
+    <article class="prop-card" data-tipo="terreno" data-precio="90000" data-m2="500" data-fecha="2026-04-10">
+      <div class="prop-card__img">
+        <div class="prop-card__img-placeholder" style="background:linear-gradient(135deg,#065f46,#059669)">🌿</div>
+
+        <span class="prop-card__price">S/ 90,000</span>
+
+      </div>
+      <div class="prop-card__body">
+        <h3 class="prop-card__title">Terreno Industrial en Lurín – Zona Expansión</h3>
+
+
+        <div class="prop-card__foot">
+          <div class="prop-card__agent">
+            <div class="agent-av" style="background:linear-gradient(135deg,#065f46,#34d399)">J</div>
+            <span>Jorge Campos</span>
+          </div>
+          <button class="prop-card__btn" onclick="verDetalle('Terreno en Lurín')">Ver más →</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- CARD 5 -->
+    <article class="prop-card" data-tipo="local" data-precio="180000" data-m2="85" data-fecha="2026-04-09">
+      <div class="prop-card__img">
+        <div class="prop-card__img-placeholder" style="background:linear-gradient(135deg,#92400e,#f59e0b)">🏪</div>
+
+        <span class="prop-card__price">S/ 180,000</span>
+
+      </div>
+      <div class="prop-card__body">
+        <h3 class="prop-card__title">Local Comercial en San Isidro – Zona Financiera</h3>
+
+
+        <div class="prop-card__foot">
+          <div class="prop-card__agent">
+            <div class="agent-av" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">V</div>
+            <span>Victor Quispe</span>
+          </div>
+          <button class="prop-card__btn" onclick="verDetalle('Local San Isidro')">Ver más →</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- CARD 6 -->
+    <article class="prop-card" data-tipo="departamento" data-precio="195000" data-m2="110" data-fecha="2026-04-08">
+      <div class="prop-card__img">
+        <div class="prop-card__img-placeholder" style="background:linear-gradient(135deg,#5b21b6,#2563eb)">🏢</div>
+
+        <span class="prop-card__price">S/ 195,000</span>
+
+      </div>
+      <div class="prop-card__body">
+        <h3 class="prop-card__title">Departamento Seminuevo en San Borja</h3>
+
+
+        <div class="prop-card__foot">
+          <div class="prop-card__agent">
+            <div class="agent-av" style="background:linear-gradient(135deg,#0369a1,#38bdf8)">JP</div>
+            <span>Jean Pierre Garcia</span>
+          </div>
+          <button class="prop-card__btn" onclick="verDetalle('Depto San Borja')">Ver más →</button>
+        </div>
+      </div>
+    </article>
+
+
+
+  </div><!-- /props-grid -->
+
+  <!-- No results -->
+  <div class="no-results" id="no-results">
+    <div class="no-results__icon">🔍</div>
+    <h3>Sin resultados</h3>
+    <p>No hay propiedades en esta categoría aún.</p>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination">
+    <button class="page-btn" disabled>‹</button>
+    <button class="page-btn active">1</button>
+    <button class="page-btn" onclick="alert('Página 2 – En el sistema real carga más propiedades.')">2</button>
+    <button class="page-btn" onclick="alert('Página 3')">3</button>
+    <button class="page-btn" onclick="alert('Página siguiente')">›</button>
+  </div>
+
+</main>
+
+<!-- ══════════════════ FOOTER ══════════════════ -->
+<footer class="site-footer">
+  © 2026 <strong>Hogar Ideal Perú</strong> · Plataforma inmobiliaria con Framework MVC PHP · Grupo N°6 UTP
+</footer>
+
+<!-- ══════════════════ JS ══════════════════ -->
+<script>
+
+
+  /* Mobile menu */
+  const hamburger  = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  hamburger.addEventListener('click',()=>{
+    const open = mobileMenu.style.display==='flex';
+    mobileMenu.style.display = open?'none':'flex';
+    hamburger.textContent = open?'☰':'✕';
+  });
+
+  /* Navbar scroll effect */
+  window.addEventListener('scroll',()=>{
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY>30);
+  },{passive:true});
+
+  /* Counter animation */
+  const animCount = (el,target,suffix='',dur=1200)=>{
+    let s=0; const step=target/(dur/16);
+    const t=setInterval(()=>{ s+=step; if(s>=target){s=target;clearInterval(t);} el.textContent=Math.floor(s)+suffix; },16);
+  };
+  window.addEventListener('load',()=>{
+    setTimeout(()=>{
+      animCount(document.getElementById('cnt-props'),6);
+      animCount(document.getElementById('cnt-agents'),4);
+    },300);
+  });
+
+  /* Filter */
+  const cards = Array.from(document.querySelectorAll('.prop-card'));
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  let currentFilter = 'all';
+  let currentSort   = 'recent';
+
+  function applyFilter(){
+    let visible=0;
+    cards.forEach(c=>{
+      const match = currentFilter==='all' || c.dataset.tipo===currentFilter;
+      c.style.display = match?'':'none';
+      if(match) visible++;
+    });
+    document.getElementById('count-label').textContent = visible;
+    document.getElementById('no-results').style.display = visible===0?'block':'none';
+    // Resort visible cards
+    applySort();
+  }
+
+  function applySort(){
+    const grid = document.getElementById('props-grid');
+    const visible = cards.filter(c=>c.style.display!=='none');
+    visible.sort((a,b)=>{
+      if(currentSort==='price-asc')  return +a.dataset.precio - +b.dataset.precio;
+      if(currentSort==='price-desc') return +b.dataset.precio - +a.dataset.precio;
+      if(currentSort==='m2')         return +b.dataset.m2 - +a.dataset.m2;
+      return new Date(b.dataset.fecha) - new Date(a.dataset.fecha); // recent
+    });
+    visible.forEach(c=>grid.appendChild(c));
+  }
+
+  filterBtns.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      filterBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      applyFilter();
+    });
+  });
+
+  document.getElementById('sort-select').addEventListener('change',function(){
+    currentSort = this.value;
+    applySort();
+  });
+
+  /* View toggle */
+  const grid    = document.getElementById('props-grid');
+  const btnGrid = document.getElementById('btn-grid');
+  const btnList = document.getElementById('btn-list');
+  btnGrid.addEventListener('click',()=>{ grid.classList.remove('list-view'); btnGrid.classList.add('active'); btnList.classList.remove('active'); });
+  btnList.addEventListener('click',()=>{ grid.classList.add('list-view');    btnList.classList.add('active'); btnGrid.classList.remove('active'); });
+
+
+
+  /* Ver detalle */
+  function verDetalle(nombre){
+    alert(`📋 ${nombre}\n\nEn el sistema real abre la página de detalle de la propiedad con:\n✔ Galería de imágenes\n✔ Mapa de ubicación\n✔ Datos completos\n✔ Formulario de contacto con el agente`);
+  }
+</script>
+</body>
+</html>

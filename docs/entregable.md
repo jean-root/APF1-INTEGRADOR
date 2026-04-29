@@ -34,9 +34,13 @@ Nuestro proyecto es una plataforma web de gestion inmobiliaria llamada "Hogar Id
 
 ## 7. Evidencias sugeridas (capturas)
 - Estructura de tablas en MySQL (phpMyAdmin o CLI).
+  [CAPTURA 1: tablas y relaciones]
 - Consulta de propiedades con JOIN a vendedores.
+  [CAPTURA 2: consulta JOIN]
 - Login y panel admin funcionando.
+  [CAPTURA 3: login o dashboard]
 - Ejecucion de backup (archivo .sql generado).
+  [CAPTURA 4: backup generado]
 
 ## 8. Presentación (orden)
 1. Objetivo del proyecto y problema que resuelve.

@@ -12,14 +12,14 @@ class AdminController extends Controller {
 
     // GET /admin/dashboard
     public function dashboard(): void {
-        Middleware::auth();
+        Middleware::requireRole(['supervisor']);
 
         $propiedad = new Propiedad();
         $vendedor  = new Vendedor();
         $mensaje   = new Mensaje();
 
         $this->render('admin/dashboard', [
-            'titulo'          => 'Dashboard – Panel Admin',
+            'titulo'          => 'Dashboard – Panel Supervisor',
             'totalPropiedades'=> $propiedad->count(),
             'totalActivas'    => $propiedad->count('activo = 1'),
             'totalVendedores' => $vendedor->count(),

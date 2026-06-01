@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `nombre`     VARCHAR(100)  NOT NULL,
   `email`      VARCHAR(150)  NOT NULL UNIQUE,
   `password`   VARCHAR(255)  NOT NULL,
+  `rol`        ENUM('admin','supervisor') NOT NULL DEFAULT 'supervisor',
+  `estado`     TINYINT(1) NOT NULL DEFAULT 1,
+  `password_reset_required` TINYINT(1) NOT NULL DEFAULT 1,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 

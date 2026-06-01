@@ -5,7 +5,7 @@
 
 // --- BASE URL ---
 // Cambia 'APF1-INTEGRADOR' si renombras la carpeta en htdocs
-define('BASE_URL', 'http://localhost/APF1-INTEGRADOR/public');
+define('BASE_URL', 'http://localhost:81/APF1-INTEGRADOR/public');
 
 // --- RUTAS ABSOLUTAS ---
 define('APP_ROOT', dirname(__DIR__));

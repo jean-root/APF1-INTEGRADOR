@@ -16,7 +16,7 @@ class VendedorController extends Controller {
 
     // GET /vendedor
     public function index(): void {
-        Middleware::auth();
+        Middleware::requireRole(['supervisor']);
         $vendedores = $this->vendedor->findAll('nombre ASC');
         $this->render('vendedores/index', [
             'titulo'     => 'Gestión de Vendedores',
@@ -26,7 +26,7 @@ class VendedorController extends Controller {
 
     // GET/POST /vendedor/crear
     public function crear(): void {
-        Middleware::auth();
+        Middleware::requireRole(['supervisor']);
         $errores = [];
 
         if ($this->isPost()) {
@@ -58,7 +58,7 @@ class VendedorController extends Controller {
 
     // GET/POST /vendedor/editar/{id}
     public function editar(string $id = '0'): void {
-        Middleware::auth();
+        Middleware::requireRole(['supervisor']);
         $vendedor = $this->vendedor->findById((int)$id);
         if (!$vendedor) $this->redirect('vendedor');
 
@@ -94,7 +94,7 @@ class VendedorController extends Controller {
 
     // GET /vendedor/eliminar/{id}
     public function eliminar(string $id = '0'): void {
-        Middleware::auth();
+        Middleware::requireRole(['supervisor']);
         $this->vendedor->delete((int)$id);
         $this->flash('success', 'Vendedor eliminado.');
         $this->redirect('vendedor');

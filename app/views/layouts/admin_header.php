@@ -15,33 +15,43 @@
 
 <div class="admin-layout">
 
+  <?php $rolUsuario = $_SESSION['usuario_rol'] ?? 'supervisor'; ?>
+
   <!-- ── SIDEBAR ─────────────────────────── -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar__brand">
       <div class="sidebar__brand-name">🏠 <span>Hogar Ideal</span> Perú</div>
-      <div class="sidebar__sub">Panel Administrativo</div>
+      <div class="sidebar__sub"><?= $rolUsuario === 'admin' ? 'Panel TI' : 'Panel Supervisor' ?></div>
     </div>
 
     <nav class="sidebar__nav">
-      <p class="sidebar__nav-title">Principal</p>
-      <a href="<?= BASE_URL ?>/admin/dashboard"
-         class="<?= strpos($titulo ?? '', 'Dashboard') !== false ? 'active' : '' ?>">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        Dashboard
-      </a>
+      <?php if ($rolUsuario === 'supervisor'): ?>
+        <p class="sidebar__nav-title">Principal</p>
+        <a href="<?= BASE_URL ?>/admin/dashboard"
+           class="<?= strpos($titulo ?? '', 'Dashboard') !== false ? 'active' : '' ?>">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
 
-      <p class="sidebar__nav-title">Gestión</p>
-      <a href="<?= BASE_URL ?>/propiedad/admin"
-         class="<?= strpos($titulo ?? '', 'Propiedad') !== false && strpos($titulo ?? '', 'Dashboard') === false ? 'active' : '' ?>">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        Propiedades
-      </a>
-      <a href="<?= BASE_URL ?>/vendedor"
-         class="<?= strpos($titulo ?? '', 'Vendedor') !== false ? 'active' : '' ?>">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-        Vendedores
-      </a>
-
+        <p class="sidebar__nav-title">Gestión</p>
+        <a href="<?= BASE_URL ?>/propiedad/admin"
+           class="<?= strpos($titulo ?? '', 'Propiedad') !== false && strpos($titulo ?? '', 'Dashboard') === false ? 'active' : '' ?>">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Propiedades
+        </a>
+        <a href="<?= BASE_URL ?>/vendedor"
+           class="<?= strpos($titulo ?? '', 'Vendedor') !== false ? 'active' : '' ?>">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          Vendedores
+        </a>
+      <?php else: ?>
+        <p class="sidebar__nav-title">TI</p>
+        <a href="<?= BASE_URL ?>/usuario"
+           class="<?= strpos($titulo ?? '', 'Usuario') !== false ? 'active' : '' ?>">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          Usuarios
+        </a>
+      <?php endif; ?>
     </nav>
 
     <div class="sidebar__user">
@@ -50,7 +60,7 @@
       </div>
       <div>
         <div class="sidebar__user-name"><?= htmlspecialchars($_SESSION['usuario_nombre'] ?? 'Admin') ?></div>
-        <div class="sidebar__user-role">Administrador</div>
+        <div class="sidebar__user-role"><?= $rolUsuario === 'admin' ? 'Admin (TI)' : 'Supervisor' ?></div>
       </div>
       <a href="<?= BASE_URL ?>/auth/logout" class="sidebar__logout" title="Cerrar sesión">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
@@ -65,6 +75,7 @@
         <h1><?= htmlspecialchars($titulo ?? 'Admin') ?></h1>
       </div>
       <div style="display:flex;align-items:center;gap:.75rem">
+        <a href="<?= BASE_URL ?>/auth/cambiar" class="btn btn-sm btn-dark">Cambiar clave</a>
         <a href="<?= BASE_URL ?>/auth/logout" class="btn btn-sm btn-danger">Salir</a>
       </div>
     </header>

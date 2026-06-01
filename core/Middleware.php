@@ -18,12 +18,32 @@ class Middleware {
     }
 
     // ----------------------------------------------------------
+    //  Verificar rol permitido para la ruta.
+    // ----------------------------------------------------------
+    public static function requireRole(array $roles): void {
+        self::auth();
+
+        $role = $_SESSION['usuario_rol'] ?? '';
+        if (!in_array($role, $roles, true)) {
+            http_response_code(403);
+            echo '<div style="font-family:sans-serif;text-align:center;padding:4rem">
+                <h1 style="font-size:3rem;color:#111111">403</h1>
+                <p style="font-size:1.1rem;color:#666">Acceso no autorizado</p>
+                <a href="' . BASE_URL . '" style="color:#FACC15">← Volver al inicio</a>
+                </div>';
+            exit;
+        }
+    }
+
+    // ----------------------------------------------------------
     //  Verificar que el usuario NO esté autenticado.
     //  (Para no mostrar el login a quien ya inició sesión)
     // ----------------------------------------------------------
     public static function guest(): void {
         if (!empty($_SESSION['usuario_id'])) {
-            header('Location: ' . BASE_URL . '/admin/dashboard');
+            $rol = $_SESSION['usuario_rol'] ?? 'supervisor';
+            $destino = $rol === 'admin' ? '/usuario' : '/admin/dashboard';
+            header('Location: ' . BASE_URL . $destino);
             exit;
         }
     }

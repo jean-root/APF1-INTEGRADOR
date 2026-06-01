@@ -58,3 +58,73 @@ SHOW INDEX FROM propiedades;
 -- Mostrar relaciones
 SHOW CREATE TABLE propiedades;
 ```
+
+## 10. BPM detallado (roles y procesos)
+
+### Roles
+- Admin (TI): crea y gestiona usuarios del sistema (supervisores), activa/inactiva cuentas, mantenimiento.
+- Supervisor: publica y gestiona propiedades, gestiona vendedores, revisa mensajes de contacto.
+- Prospecto: usuario externo que consulta propiedades y envia formulario de contacto.
+
+### Reglas del proceso
+- El login valida credenciales y estado (activo/inactivo).
+- Solo Admin (TI) puede gestionar usuarios del sistema.
+- Solo Supervisor puede crear, editar, publicar o eliminar propiedades y vendedores.
+- El contacto de prospecto queda registrado en mensajes para seguimiento.
+- TI crea la cuenta del Supervisor con contraseña temporal y se fuerza el cambio al primer ingreso.
+
+### Subprocesos (texto)
+1) Login
+  - Entrada: email y password.
+  - Validacion: credenciales correctas y estado activo.
+  - Salida: sesion iniciada y acceso segun rol.
+
+1.1) Cambio de contraseña obligatorio
+  - Entrada: contraseña temporal y nueva contraseña.
+  - Validacion: longitud minima y confirmacion.
+  - Salida: contraseña actualizada y acceso al panel.
+
+2) Gestion de usuarios (Admin TI)
+  - Entrada: datos del usuario (nombre, email, rol, estado).
+  - Validacion: email unico, rol permitido.
+  - Salida: usuario creado/actualizado o desactivado, con cambio de clave pendiente.
+
+3) Publicacion y gestion de propiedades (Supervisor)
+  - Entrada: datos de propiedad, imagen, vendedor asignado.
+  - Validacion: datos obligatorios y formato de imagen.
+  - Salida: propiedad publicada, editada o desactivada.
+
+4) Contacto de prospecto
+  - Entrada: nombre, email, mensaje, telefono opcional.
+  - Validacion: campos obligatorios y email valido.
+  - Salida: mensaje registrado para seguimiento.
+
+### Diagrama BPM (Mermaid)
+```mermaid
+flowchart TD
+  A[Inicio] --> B[Login]
+  B --> C{Credenciales validas?}
+  C -- No --> B
+  C -- Si --> D{Usuario activo?}
+  D -- No --> B
+  D -- Si --> D1{Cambio de clave pendiente?}
+  D1 -- Si --> D2[Cambiar contrasena]
+  D2 --> E{Rol}
+  D1 -- No --> E{Rol}
+
+  E -- Admin --> F[Gestion de usuarios]
+  F --> F1[Crear/Editar/Desactivar]
+  F1 --> G[Fin]
+
+  E -- Supervisor --> H[Dashboard Supervisor]
+  H --> I[Gestion de propiedades]
+  H --> J[Gestion de vendedores]
+  H --> K[Mensajes de contacto]
+  I --> G
+  J --> G
+  K --> G
+
+  P[Prospecto] --> Q[Formulario de contacto]
+  Q --> R[Registrar mensaje]
+  R --> K
+```

@@ -1,6 +1,6 @@
 <?php
 // ============================================================
-//  INSTALL.PHP – Script de instalación del administrador
+//  INSTALL.PHP – Script de instalación del Admin TI
 //  Visita: http://localhost/APF1-INTEGRADOR/install
 //  ⚠️  ELIMINA ESTE ARCHIVO después de usarlo
 // ============================================================
@@ -19,10 +19,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crear'])) {
     try {
         $db  = Database::getInstance();
         $db->query(
-            "INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)",
-            [$nombre, $email, $password]
+            "INSERT INTO usuarios (nombre, email, password, rol, estado) VALUES (?, ?, ?, ?, ?)",
+            [$nombre, $email, $password, 'admin', 1]
         );
-        $message = '✅ Administrador creado correctamente. <strong>Elimina este archivo (install.php) ahora.</strong>';
+        $message = '✅ Admin TI creado correctamente. <strong>Elimina este archivo (install.php) ahora.</strong>';
         $success = true;
     } catch (Exception $e) {
         $message = '❌ Error: ' . $e->getMessage();
@@ -52,8 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crear'])) {
 <body>
 <div class="card">
     <h2>🔧 Configuración Inicial</h2>
-    <p class="sub">Crea el usuario administrador del sistema.</p>
-    <div class="warn">⚠️ Elimina este archivo después de crear el admin.</div>
+    <p class="sub">Crea el usuario Admin TI del sistema.</p>
+    <div class="warn">⚠️ Elimina este archivo después de crear el Admin TI.</div>
 
     <?php if ($message): ?>
         <div class="msg <?= $success ? 'ok' : 'err' ?>"><?= $message ?></div>
@@ -62,12 +62,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crear'])) {
     <?php if (!$success): ?>
     <form method="POST">
         <label>Nombre</label>
-        <input type="text" name="nombre" value="Administrador" required>
+        <input type="text" name="nombre" value="Admin TI" required>
         <label>Email</label>
         <input type="email" name="email" value="admin@hogarideal.pe" required>
         <label>Contraseña</label>
         <input type="password" name="password" placeholder="Mínimo 6 caracteres" required>
-        <button type="submit" name="crear">Crear Administrador</button>
+        <button type="submit" name="crear">Crear Admin TI</button>
     </form>
     <?php else: ?>
         <a href="<?= BASE_URL ?>/auth/login" style="display:block;text-align:center;margin-top:1rem;color:#111111;font-weight:600;">Ir al Login →</a>

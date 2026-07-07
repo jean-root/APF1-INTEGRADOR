@@ -10,6 +10,7 @@
   <?php endif; ?>
 
   <form method="POST">
+    <?= $this->csrfField() ?>
     <div class="form-group">
       <label>Nombre</label>
       <input type="text" name="nombre" required value="<?= htmlspecialchars($_POST['nombre'] ?? $usuario->nombre) ?>">

@@ -21,6 +21,7 @@ class AuthController extends Controller {
         $error = '';
 
         if ($this->isPost()) {
+            $this->requireCsrf();
             $email    = $this->sanitize($_POST['email']    ?? '');
             $password = trim($_POST['password'] ?? '');
 
@@ -44,10 +45,7 @@ class AuthController extends Controller {
                             $this->redirect('auth/cambiar');
                         }
 
-                        if ($_SESSION['usuario_rol'] === 'admin') {
-                            $this->redirect('usuario');
-                        }
-                        $this->redirect('admin/dashboard');
+                        $this->redirect($this->destinoPorRol($_SESSION['usuario_rol']));
                     }
                 } else {
                     // Registrar intento fallido (R6)
@@ -74,6 +72,7 @@ class AuthController extends Controller {
         $exito = '';
 
         if ($this->isPost()) {
+            $this->requireCsrf();
             $actual   = trim($_POST['actual'] ?? '');
             $nueva    = trim($_POST['nueva'] ?? '');
             $confirm  = trim($_POST['confirmar'] ?? '');
@@ -94,11 +93,7 @@ class AuthController extends Controller {
                         'password_reset_required' => 0,
                     ]);
                     $exito = 'Contraseña actualizada correctamente.';
-
-                    if (($_SESSION['usuario_rol'] ?? '') === 'admin') {
-                        $this->redirect('usuario');
-                    }
-                    $this->redirect('admin/dashboard');
+                    $this->redirect($this->destinoPorRol($_SESSION['usuario_rol'] ?? 'supervisor'));
                 }
             }
         }
@@ -107,5 +102,14 @@ class AuthController extends Controller {
             'error' => $error,
             'exito' => $exito,
         ]);
+    }
+
+    // Destino de redirección tras login/cambio de clave, según rol (HU-27: rol vendedor -> /panel)
+    private function destinoPorRol(string $rol): string {
+        return match ($rol) {
+            'admin'    => 'usuario',
+            'vendedor' => 'panel',
+            default    => 'admin/dashboard',
+        };
     }
 }

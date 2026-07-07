@@ -63,4 +63,37 @@ class Controller {
     protected function flash(string $type, string $message): void {
         $_SESSION['flash'] = ['type' => $type, 'message' => $message];
     }
+
+    // ----------------------------------------------------------
+    //  Protección CSRF (CS-11)
+    //  Token único por sesión, validado en cada POST.
+    // ----------------------------------------------------------
+    protected function csrfToken(): string {
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+        return $_SESSION['csrf_token'];
+    }
+
+    // Campo oculto listo para insertar en cualquier <form method="POST">
+    protected function csrfField(): string {
+        return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($this->csrfToken()) . '">';
+    }
+
+    // Verifica el token recibido contra el de sesión (comparación segura)
+    protected function csrfValido(): bool {
+        $token = $_POST['csrf_token'] ?? '';
+        return !empty($_SESSION['csrf_token']) && is_string($token) && hash_equals($_SESSION['csrf_token'], $token);
+    }
+
+    // Aborta con 419 si el POST no trae un token CSRF válido
+    protected function requireCsrf(): void {
+        if ($this->isPost() && !$this->csrfValido()) {
+            http_response_code(419);
+            die('<div style="font-family:sans-serif;text-align:center;padding:4rem">
+                <h1 style="font-size:3rem;color:#111111">419</h1>
+                <p style="font-size:1.1rem;color:#666">Tu sesión de formulario expiró o el token de seguridad no es válido. Vuelve atrás e inténtalo de nuevo.</p>
+                </div>');
+        }
+    }
 }

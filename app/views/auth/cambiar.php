@@ -24,6 +24,7 @@
       <?php endif; ?>
 
       <form method="POST" action="">
+        <?= $this->csrfField() ?>
         <div class="form-group" style="margin-bottom:1rem">
           <label>Contraseña actual</label>
           <input type="password" name="actual" required>

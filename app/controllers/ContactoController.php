@@ -3,6 +3,7 @@
 //  CONTROLLER: Contacto
 // ============================================================
 require_once APP_ROOT . '/core/Controller.php';
+require_once APP_ROOT . '/core/Mailer.php';
 require_once APP_ROOT . '/app/models/Mensaje.php';
 
 class ContactoController extends Controller {
@@ -19,6 +20,7 @@ class ContactoController extends Controller {
         $error = '';
 
         if ($this->isPost()) {
+            $this->requireCsrf();
             $nombre   = $this->sanitize($_POST['nombre']   ?? '');
             $email    = $this->sanitize($_POST['email']    ?? '');
             $telefono = $this->sanitize($_POST['telefono'] ?? '');
@@ -30,6 +32,8 @@ class ContactoController extends Controller {
             } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $error = 'El correo electrónico no es válido.';
             } else {
+                // El mensaje siempre se guarda en BD, sin importar si el correo
+                // de notificación se envía o no (ver core/Mailer.php).
                 $this->mensaje->insert([
                     'nombre'   => $nombre,
                     'email'    => $email,
@@ -37,6 +41,7 @@ class ContactoController extends Controller {
                     'asunto'   => $asunto,
                     'mensaje'  => $mensaje,
                 ]);
+                Mailer::enviarNotificacionContacto($nombre, $email, $telefono, $asunto, $mensaje);
                 $exito = true;
             }
         }

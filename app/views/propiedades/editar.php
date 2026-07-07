@@ -16,6 +16,7 @@
 
 <div class="form-card">
   <form method="POST" enctype="multipart/form-data" data-validate>
+    <?= $this->csrfField() ?>
 
     <div class="form-grid">
 
@@ -86,6 +87,12 @@
                <?= (($_POST['activo'] ?? $propiedad->activo) ? 'checked' : '') ?>
                style="width:auto;accent-color:var(--accent)">
         <label for="activo" style="margin:0;cursor:pointer">Propiedad activa (visible en catálogo)</label>
+      </div>
+      <div class="form-group" style="display:flex;flex-direction:row;align-items:center;gap:.75rem;padding-top:1.5rem">
+        <input type="checkbox" name="destacado" id="destacado" value="1"
+               <?= (($_POST['destacado'] ?? $propiedad->destacado) ? 'checked' : '') ?>
+               style="width:auto;accent-color:var(--accent)">
+        <label for="destacado" style="margin:0;cursor:pointer">⭐ Propiedad destacada (aparece primero en el catálogo)</label>
       </div>
 
       <div class="form-group form-full">

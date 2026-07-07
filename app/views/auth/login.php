@@ -23,6 +23,7 @@
       <?php endif; ?>
 
       <form method="POST" action="" data-validate>
+        <?= $this->csrfField() ?>
 
         <div class="form-group" style="margin-bottom:1rem">
           <label>Correo electrónico</label>

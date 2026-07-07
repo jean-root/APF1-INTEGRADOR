@@ -6,6 +6,15 @@
 
 session_start();
 
+// ── Cabeceras de seguridad HTTP (CS-09) ──────────────────────
+header('X-Frame-Options: SAMEORIGIN');
+header('X-Content-Type-Options: nosniff');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+// 'unsafe-inline' en script-src se mantiene porque algunas vistas usan
+// atributos onerror="" para fallback de imágenes rotas (no ejecutan código de terceros).
+// cdnjs.cloudflare.com se permite explícitamente para cargar Chart.js (HU-26, dashboard).
+header("Content-Security-Policy: default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com");
+
 // Cargar configuración
 require_once dirname(__DIR__) . '/config/config.php';
 

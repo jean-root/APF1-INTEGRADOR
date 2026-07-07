@@ -42,6 +42,22 @@
   <a href="<?= BASE_URL ?>/vendedor/crear" class="btn btn-dark">+ Nuevo Vendedor</a>
 </div>
 
+<!-- Gráficas (HU-26) -->
+<div class="charts-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;margin-bottom:2rem">
+  <div class="admin-card">
+    <div class="admin-card__header"><span class="admin-card__title">🏠 Propiedades por Tipo</span></div>
+    <canvas id="chartTipos" height="220"></canvas>
+  </div>
+  <div class="admin-card">
+    <div class="admin-card__header"><span class="admin-card__title">✉️ Mensajes por Mes</span></div>
+    <canvas id="chartMensajes" height="220"></canvas>
+  </div>
+  <div class="admin-card">
+    <div class="admin-card__header"><span class="admin-card__title">🏆 Top Vendedores por Propiedades</span></div>
+    <canvas id="chartVendedores" height="220"></canvas>
+  </div>
+</div>
+
 <!-- Últimas propiedades -->
 <div class="admin-card">
   <div class="admin-card__header">
@@ -94,6 +110,7 @@
 <div class="admin-card" style="margin-top:1.5rem">
   <div class="admin-card__header">
     <span class="admin-card__title">✉️ Mensajes de Contacto</span>
+    <a href="<?= BASE_URL ?>/mensaje" class="btn btn-sm btn-dark">Ver bandeja completa</a>
   </div>
   <table class="data-table">
     <thead>
@@ -116,5 +133,46 @@
   </table>
 </div>
 <?php endif; ?>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>
+(function () {
+  var tipos      = <?= json_encode($graficaTipos) ?>;
+  var mensajes   = <?= json_encode($graficaMensajes) ?>;
+  var vendedores = <?= json_encode($graficaVendedores) ?>;
+
+  var colores = ['#FACC15', '#111111', '#2b7a4b', '#5b6bd6', '#dc2626', '#0891b2'];
+
+  // 1. Propiedades por tipo (dona)
+  new Chart(document.getElementById('chartTipos'), {
+    type: 'doughnut',
+    data: {
+      labels: tipos.map(function (t) { return t.tipo.charAt(0).toUpperCase() + t.tipo.slice(1); }),
+      datasets: [{ data: tipos.map(function (t) { return t.total; }), backgroundColor: colores }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } } }
+  });
+
+  // 2. Mensajes por mes (barras)
+  new Chart(document.getElementById('chartMensajes'), {
+    type: 'bar',
+    data: {
+      labels: mensajes.map(function (m) { return m.mes; }),
+      datasets: [{ label: 'Mensajes', data: mensajes.map(function (m) { return m.total; }), backgroundColor: '#FACC15' }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+
+  // 3. Top vendedores por propiedades (barras horizontales)
+  new Chart(document.getElementById('chartVendedores'), {
+    type: 'bar',
+    data: {
+      labels: vendedores.map(function (v) { return v.nombre + ' ' + v.apellido; }),
+      datasets: [{ label: 'Propiedades', data: vendedores.map(function (v) { return v.total; }), backgroundColor: '#111111' }]
+    },
+    options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+})();
+</script>
 
 <?php require_once APP_ROOT . '/app/views/layouts/admin_footer.php'; ?>

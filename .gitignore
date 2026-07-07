@@ -1,0 +1,29 @@
+# Variables de entorno / credenciales
+.env
+
+# Backups de base de datos
+backups/*.sql.gz
+backups/*.sql
+
+# Logs
+logs/*.log
+
+# Imágenes subidas en desarrollo local (no versionar contenido de usuarios)
+public/uploads/propiedades/*
+!public/uploads/propiedades/.gitkeep
+
+# Instalador (solo debe existir localmente hasta crear el admin)
+/install.php
+
+# Documentos académicos / entregables (no son parte del código del sistema)
+/*.docx
+/*.xlsx
+/*.zip
+/Evidencias Casos de Prueba/
+
+# Archivos de sistema / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+/ziUSPpEe

@@ -13,6 +13,7 @@
 
 <div class="form-card" style="max-width:600px">
   <form method="POST" data-validate>
+    <?= $this->csrfField() ?>
     <div class="form-grid">
       <div class="form-group">
         <label>Nombre *</label>
@@ -33,6 +34,21 @@
         <label>Teléfono</label>
         <input type="text" name="telefono" placeholder="+51 936 338 196"
                value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>">
+      </div>
+      <div class="form-group">
+        <label>Zona asignada</label>
+        <input type="text" name="zona" placeholder="Ej: Surco, Miraflores"
+               value="<?= htmlspecialchars($_POST['zona'] ?? '') ?>">
+      </div>
+      <div class="form-group">
+        <label>Comisión (%)</label>
+        <input type="number" name="comision" min="0" max="100" step="0.5" placeholder="3.00"
+               value="<?= htmlspecialchars($_POST['comision'] ?? '3.00') ?>">
+      </div>
+      <div class="form-group form-full" style="display:flex;align-items:center;gap:.5rem;margin-top:.5rem">
+        <input type="checkbox" id="crear_acceso" name="crear_acceso" value="1" style="width:auto"
+               <?= isset($_POST['crear_acceso']) ? 'checked' : '' ?>>
+        <label for="crear_acceso" style="margin:0">Otorgar acceso al sistema (login propio para el vendedor)</label>
       </div>
     </div>
     <div style="margin-top:1.5rem;display:flex;gap:1rem">

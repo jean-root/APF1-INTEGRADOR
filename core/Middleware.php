@@ -42,7 +42,11 @@ class Middleware {
     public static function guest(): void {
         if (!empty($_SESSION['usuario_id'])) {
             $rol = $_SESSION['usuario_rol'] ?? 'supervisor';
-            $destino = $rol === 'admin' ? '/usuario' : '/admin/dashboard';
+            $destino = match ($rol) {
+                'admin'    => '/usuario',
+                'vendedor' => '/panel',
+                default    => '/admin/dashboard',
+            };
             header('Location: ' . BASE_URL . $destino);
             exit;
         }

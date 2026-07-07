@@ -74,6 +74,7 @@
           </h3>
 
           <form method="POST" class="form-grid" style="gap:1rem" data-validate>
+            <?= $this->csrfField() ?>
             <div class="form-group">
               <label>Tu nombre *</label>
               <input type="text" name="nombre" placeholder="Juan García" required>

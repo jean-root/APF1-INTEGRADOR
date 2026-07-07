@@ -6,6 +6,7 @@ require_once APP_ROOT . '/core/Controller.php';
 require_once APP_ROOT . '/core/Middleware.php';
 require_once APP_ROOT . '/app/models/Propiedad.php';
 require_once APP_ROOT . '/app/models/Vendedor.php';
+require_once APP_ROOT . '/app/models/LogAccion.php';
 
 class PropiedadController extends Controller {
 
@@ -21,15 +22,27 @@ class PropiedadController extends Controller {
 
     // GET /propiedad  → catálogo público
     public function index(): void {
-        $tipo        = $_GET['tipo'] ?? '';
-        $propiedades = $tipo
-            ? $this->propiedad->porTipo($tipo)
+        $filtros = [
+            'tipo'         => $_GET['tipo']         ?? '',
+            'habitaciones' => $_GET['habitaciones'] ?? '',
+            'banos'        => $_GET['banos']        ?? '',
+            'metros2_min'  => $_GET['metros2_min']  ?? '',
+            'precio_min'   => $_GET['precio_min']   ?? '',
+            'precio_max'   => $_GET['precio_max']   ?? '',
+        ];
+
+        $hayFiltrosAvanzados = ($filtros['habitaciones'] !== '' || $filtros['banos'] !== ''
+            || $filtros['metros2_min'] !== '' || $filtros['precio_min'] !== '' || $filtros['precio_max'] !== '');
+
+        $propiedades = ($hayFiltrosAvanzados || $filtros['tipo'] !== '')
+            ? $this->propiedad->buscarConFiltros($filtros)
             : $this->propiedad->todasActivas();
 
         $this->render('propiedades/index', [
             'titulo'      => 'Propiedades – ' . APP_NAME,
             'propiedades' => $propiedades,
-            'tipoActivo'  => $tipo,
+            'tipoActivo'  => $filtros['tipo'],
+            'filtros'     => $filtros,
         ]);
     }
 
@@ -63,6 +76,7 @@ class PropiedadController extends Controller {
         $errores = [];
 
         if ($this->isPost()) {
+            $this->requireCsrf();
             $datos = $this->recogerDatos();
             $errores = $this->validar($datos);
 
@@ -78,7 +92,8 @@ class PropiedadController extends Controller {
                 }
 
                 if (empty($errores)) {
-                    $this->propiedad->insert($datos);
+                    $nuevoId = $this->propiedad->insert($datos);
+                    LogAccion::registrar('crear', 'propiedad', (int)$nuevoId, $datos['titulo']);
                     $this->flash('success', 'Propiedad creada correctamente.');
                     $this->redirect('propiedad/admin');
                 }
@@ -102,6 +117,7 @@ class PropiedadController extends Controller {
         $errores = [];
 
         if ($this->isPost()) {
+            $this->requireCsrf();
             $datos = $this->recogerDatos();
             $errores = $this->validar($datos);
 
@@ -121,6 +137,7 @@ class PropiedadController extends Controller {
 
                 if (empty($errores)) {
                     $this->propiedad->update((int)$id, $datos);
+                    LogAccion::registrar('editar', 'propiedad', (int)$id, $datos['titulo']);
                     $this->flash('success', 'Propiedad actualizada correctamente.');
                     $this->redirect('propiedad/admin');
                 }
@@ -145,6 +162,7 @@ class PropiedadController extends Controller {
                 @unlink(UPLOAD_DIR . $propiedad->imagen);
             }
             $this->propiedad->delete((int)$id);
+            LogAccion::registrar('eliminar', 'propiedad', (int)$id, $propiedad->titulo);
             $this->flash('success', 'Propiedad eliminada.');
         }
         $this->redirect('propiedad/admin');
@@ -165,6 +183,7 @@ class PropiedadController extends Controller {
             'direccion'        => $this->sanitize($_POST['direccion']        ?? ''),
             'vendedor_id'      => (int) ($_POST['vendedor_id']               ?? 0),
             'activo'           => isset($_POST['activo']) ? 1 : 0,
+            'destacado'        => isset($_POST['destacado']) ? 1 : 0,
         ];
     }
 

@@ -587,6 +587,7 @@ ul { list-style: none; }
 .badge-gray   { background: rgba(130,130,130,.1); color: #666; }
 .badge-gold   { background: rgba(250,204,21,.12); color: var(--accent-dark); }
 .badge-blue   { background: rgba(17,17,17,.1);   color: var(--primary); }
+.badge-danger { background: rgba(220,38,38,.12);  color: #dc2626; }
 
 /* ============================================================
    FORMULARIOS

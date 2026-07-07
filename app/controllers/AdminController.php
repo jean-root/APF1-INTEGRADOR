@@ -27,6 +27,28 @@ class AdminController extends Controller {
             'noLeidos'        => $mensaje->noLeidos(),
             'ultimasProp'     => $propiedad->ultimas(5),
             'ultimosMensajes' => $mensaje->findAll('created_at DESC'),
+            // HU-26: datos para las gráficas del dashboard
+            'graficaTipos'     => $propiedad->contarPorTipo(),
+            'graficaMensajes'  => $this->ultimosSeisMeses($mensaje->contarPorMes()),
+            'graficaVendedores'=> $vendedor->topPorPropiedades(5),
         ]);
+    }
+
+    // Completa los últimos 6 meses (incluyendo meses sin mensajes, en 0) para la gráfica de línea/barras
+    private function ultimosSeisMeses(array $porMes): array {
+        $mapa = [];
+        foreach ($porMes as $fila) {
+            $mapa[$fila->mes] = (int) $fila->total;
+        }
+
+        $resultado = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $clave = date('Y-m', strtotime("-{$i} months"));
+            $resultado[] = [
+                'mes'   => $clave,
+                'total' => $mapa[$clave] ?? 0,
+            ];
+        }
+        return $resultado;
     }
 }

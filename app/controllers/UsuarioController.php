@@ -5,6 +5,7 @@
 require_once APP_ROOT . '/core/Controller.php';
 require_once APP_ROOT . '/core/Middleware.php';
 require_once APP_ROOT . '/app/models/Usuario.php';
+require_once APP_ROOT . '/app/models/LogAccion.php';
 
 class UsuarioController extends Controller {
 
@@ -15,9 +16,15 @@ class UsuarioController extends Controller {
     }
 
     // GET /usuario
+    // Nota: las cuentas rol=vendedor no se listan aquí — se crean y gestionan
+    // desde /vendedor (VendedorController), vinculadas 1:1 a un registro de
+    // `vendedores`. Esta pantalla es solo para cuentas admin/supervisor.
     public function index(): void {
         Middleware::requireRole(['admin']);
-        $usuarios = $this->usuario->findAll('created_at DESC');
+        $usuarios = array_filter(
+            $this->usuario->findAll('created_at DESC'),
+            fn($u) => ($u->rol ?? '') !== 'vendedor'
+        );
         $this->render('usuarios/index', [
             'titulo'   => 'Gestión de Usuarios',
             'usuarios' => $usuarios,
@@ -30,6 +37,7 @@ class UsuarioController extends Controller {
         $errores = [];
 
         if ($this->isPost()) {
+            $this->requireCsrf();
             $datos = $this->recogerDatos($_POST);
             $errores = $this->validar($datos, false);
 
@@ -38,7 +46,8 @@ class UsuarioController extends Controller {
                 $datos['password'] = password_hash($passwordPlano, PASSWORD_BCRYPT);
                 $datos['password_reset_required'] = 1;
                 try {
-                    $this->usuario->insert($datos);
+                    $nuevoId = $this->usuario->insert($datos);
+                    LogAccion::registrar('crear', 'usuario', (int)$nuevoId, $datos['nombre'] . ' (' . $datos['rol'] . ')');
                     $this->flash('success', 'Usuario creado correctamente.');
                     $_SESSION['temp_password'] = $passwordPlano;
                     $_SESSION['temp_user_email'] = $datos['email'];
@@ -60,10 +69,15 @@ class UsuarioController extends Controller {
         Middleware::requireRole(['admin']);
         $usuario = $this->usuario->findById((int)$id);
         if (!$usuario) $this->redirect('usuario');
+        if (($usuario->rol ?? '') === 'vendedor') {
+            $this->flash('error', 'Las cuentas de vendedor se gestionan desde Vendedores.');
+            $this->redirect('vendedor');
+        }
 
         $errores = [];
 
         if ($this->isPost()) {
+            $this->requireCsrf();
             $datos = $this->recogerDatos($_POST, false);
             $errores = $this->validar($datos, false);
 
@@ -82,6 +96,7 @@ class UsuarioController extends Controller {
 
                 try {
                     $this->usuario->update((int)$id, $update);
+                    LogAccion::registrar('editar', 'usuario', (int)$id, $update['nombre'] . ' (' . $update['rol'] . ')');
                     $this->flash('success', 'Usuario actualizado correctamente.');
                     $this->redirect('usuario');
                 } catch (Exception $e) {
@@ -100,7 +115,13 @@ class UsuarioController extends Controller {
     // GET /usuario/eliminar/{id}
     public function eliminar(string $id = '0'): void {
         Middleware::requireRole(['admin']);
+        $usuario = $this->usuario->findById((int)$id);
+        if ($usuario && ($usuario->rol ?? '') === 'vendedor') {
+            $this->flash('error', 'Las cuentas de vendedor se gestionan desde Vendedores.');
+            $this->redirect('vendedor');
+        }
         $this->usuario->delete((int)$id);
+        LogAccion::registrar('eliminar', 'usuario', (int)$id, $usuario->nombre ?? '');
         $this->flash('success', 'Usuario eliminado.');
         $this->redirect('usuario');
     }
@@ -121,6 +142,7 @@ class UsuarioController extends Controller {
 
         $_SESSION['temp_password'] = $passwordPlano;
         $_SESSION['temp_user_email'] = $usuario->email;
+        LogAccion::registrar('editar', 'usuario', (int)$id, 'Contraseña reiniciada para ' . $usuario->nombre);
         $this->flash('success', 'Contraseña temporal generada.');
         $this->redirect('usuario');
     }

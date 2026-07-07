@@ -13,6 +13,7 @@
 
 <div class="form-card" style="max-width:600px">
   <form method="POST" data-validate>
+    <?= $this->csrfField() ?>
     <div class="form-grid">
       <div class="form-group">
         <label>Nombre *</label>
@@ -34,9 +35,20 @@
         <input type="text" name="telefono"
                value="<?= htmlspecialchars($_POST['telefono'] ?? $vendedor->telefono) ?>">
       </div>
+      <div class="form-group">
+        <label>Zona asignada</label>
+        <input type="text" name="zona" placeholder="Ej: Surco, Miraflores"
+               value="<?= htmlspecialchars($_POST['zona'] ?? $vendedor->zona ?? '') ?>">
+      </div>
+      <div class="form-group">
+        <label>Comisión (%)</label>
+        <input type="number" name="comision" min="0" max="100" step="0.5"
+               value="<?= htmlspecialchars($_POST['comision'] ?? $vendedor->comision ?? '3.00') ?>">
+      </div>
     </div>
     <div style="margin-top:1.5rem;display:flex;gap:1rem">
       <button type="submit" class="btn btn-primary">💾 Actualizar</button>
+      <a href="<?= BASE_URL ?>/vendedor/reasignar/<?= $vendedor->id ?>" class="btn btn-dark">🔄 Reasignar propiedades</a>
       <a href="<?= BASE_URL ?>/vendedor" class="btn btn-outline" style="border-color:var(--border);color:var(--text)">Cancelar</a>
     </div>
   </form>

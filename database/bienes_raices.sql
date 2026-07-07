@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `nombre`     VARCHAR(100)  NOT NULL,
   `email`      VARCHAR(150)  NOT NULL UNIQUE,
   `password`   VARCHAR(255)  NOT NULL,
-  `rol`        ENUM('admin','supervisor') NOT NULL DEFAULT 'supervisor',
+  `rol`        ENUM('admin','supervisor','vendedor') NOT NULL DEFAULT 'supervisor',
   `estado`     TINYINT(1) NOT NULL DEFAULT 1,
   `password_reset_required` TINYINT(1) NOT NULL DEFAULT 1,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
 
 -- ──────────────────────────────────────────
 --  TABLA: vendedores (personal de ventas)
+--  usuario_id: vínculo opcional a una cuenta de acceso (login propio
+--  del vendedor, rol='vendedor' en `usuarios`) — HU-27.
 -- ──────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS `vendedores` (
   `id`         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -33,8 +35,12 @@ CREATE TABLE IF NOT EXISTS `vendedores` (
   `apellido`   VARCHAR(100) NOT NULL,
   `email`      VARCHAR(150) NOT NULL UNIQUE,
   `telefono`   VARCHAR(20),
+  `zona`       VARCHAR(100) NULL,
+  `comision`   DECIMAL(5,2) NULL DEFAULT 3.00,
+  `usuario_id` INT UNSIGNED NULL,
   `foto`       VARCHAR(255) DEFAULT 'default.jpg',
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`usuario_id`) REFERENCES `usuarios`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- ──────────────────────────────────────────
@@ -54,6 +60,7 @@ CREATE TABLE IF NOT EXISTS `propiedades` (
   `imagen`           VARCHAR(255) DEFAULT 'no-imagen.jpg',
   `vendedor_id`      INT UNSIGNED,
   `activo`           TINYINT(1) DEFAULT 1,
+  `destacado`        TINYINT(1) NOT NULL DEFAULT 0,
   `created_at`       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`vendedor_id`) REFERENCES `vendedores`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB;
@@ -61,15 +68,37 @@ CREATE TABLE IF NOT EXISTS `propiedades` (
 -- ──────────────────────────────────────────
 --  TABLA: mensajes (formulario de contacto)
 -- ──────────────────────────────────────────
+-- vendedor_id + estado: pipeline de ventas (HU-28) — un mensaje/lead se
+-- asigna a un vendedor y avanza nuevo → contactado → visita_agendada →
+-- cerrado/perdido, dando trazabilidad real de la actividad comercial.
 CREATE TABLE IF NOT EXISTS `mensajes` (
   `id`         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   `nombre`     VARCHAR(100) NOT NULL,
   `email`      VARCHAR(150) NOT NULL,
   `telefono`   VARCHAR(20),
+  `vendedor_id` INT UNSIGNED NULL,
   `asunto`     VARCHAR(200),
   `mensaje`    TEXT NOT NULL,
   `leido`      TINYINT(1) DEFAULT 0,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  `estado`     ENUM('nuevo','contactado','visita_agendada','cerrado','perdido') NOT NULL DEFAULT 'nuevo',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`vendedor_id`) REFERENCES `vendedores`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- ──────────────────────────────────────────
+--  TABLA: log_acciones (bitácora de auditoría, HU-25)
+-- ──────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `log_acciones` (
+  `id`             INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `usuario_id`     INT UNSIGNED NULL,
+  `usuario_nombre` VARCHAR(100) NOT NULL,
+  `accion`         ENUM('crear','editar','eliminar') NOT NULL,
+  `entidad`        VARCHAR(50) NOT NULL,
+  `entidad_id`     INT UNSIGNED NULL,
+  `detalle`        VARCHAR(255) NULL,
+  `ip`             VARCHAR(45) NULL,
+  `created_at`     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`usuario_id`) REFERENCES `usuarios`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- ──────────────────────────────────────────
@@ -78,11 +107,19 @@ CREATE TABLE IF NOT EXISTS `mensajes` (
 CREATE INDEX `idx_propiedades_vendedor`   ON `propiedades` (`vendedor_id`);
 CREATE INDEX `idx_propiedades_tipo`       ON `propiedades` (`tipo`);
 CREATE INDEX `idx_propiedades_activo`     ON `propiedades` (`activo`);
+CREATE INDEX `idx_propiedades_destacado`  ON `propiedades` (`destacado`);
 CREATE INDEX `idx_propiedades_created_at` ON `propiedades` (`created_at`);
 
 CREATE INDEX `idx_mensajes_leido`         ON `mensajes` (`leido`);
 CREATE INDEX `idx_mensajes_created_at`    ON `mensajes` (`created_at`);
 CREATE INDEX `idx_mensajes_email`         ON `mensajes` (`email`);
+CREATE INDEX `idx_mensajes_vendedor`      ON `mensajes` (`vendedor_id`);
+CREATE INDEX `idx_mensajes_estado`        ON `mensajes` (`estado`);
+
+CREATE INDEX `idx_vendedores_usuario`     ON `vendedores` (`usuario_id`);
+
+CREATE INDEX `idx_log_acciones_created_at` ON `log_acciones` (`created_at`);
+CREATE INDEX `idx_log_acciones_entidad`    ON `log_acciones` (`entidad`);
 
 -- ──────────────────────────────────────────
 --  SEGURIDAD (opcional): usuario de aplicacion

@@ -39,9 +39,44 @@ class Mailer {
         }
     }
 
+    // Envío de correo del Vendedor hacia su prospecto/cliente (panel del vendedor).
+    // Usa la misma cuenta SMTP configurada (MAIL_USER/MAIL_PASS) como remitente técnico,
+    // pero el Reply-To queda con el correo del vendedor para que el cliente le responda
+    // directamente a él, y el cuerpo se firma con su nombre.
+    public static function enviarCorreoVendedor(
+        string $paraEmail, string $paraNombre,
+        string $deVendedorNombre, string $deVendedorEmail,
+        string $asunto, string $cuerpo
+    ): bool {
+        if (empty(MAIL_USER) || empty(MAIL_PASS)) {
+            return false; // Sin credenciales configuradas: no se puede enviar.
+        }
+
+        $cuerpoFinal = $cuerpo . "\n\n---\n" . $deVendedorNombre . "\n" . APP_NAME
+                     . ($deVendedorEmail !== '' ? " · {$deVendedorEmail}" : '');
+
+        try {
+            return self::smtpSend(
+                MAIL_HOST,
+                MAIL_PORT,
+                MAIL_USER,
+                MAIL_PASS,
+                $paraEmail,
+                $asunto,
+                $cuerpoFinal,
+                $deVendedorEmail !== '' ? $deVendedorEmail : MAIL_USER,
+                $deVendedorNombre !== '' ? $deVendedorNombre . ' vía ' . APP_NAME : APP_NAME
+            );
+        } catch (Throwable $e) {
+            error_log('[Mailer] Error al enviar correo del vendedor: ' . $e->getMessage());
+            return false;
+        }
+    }
+
     private static function smtpSend(
         string $host, int $port, string $user, string $pass,
-        string $to, string $subject, string $body, string $replyTo
+        string $to, string $subject, string $body, string $replyTo,
+        string $fromDisplayName = ''
     ): bool {
         $timeout = 10;
         $socket = @stream_socket_client("tcp://{$host}:{$port}", $errno, $errstr, $timeout);
@@ -58,45 +93,4 @@ class Mailer {
         }
 
         self::command($socket, "EHLO " . APP_NAME, '250');
-        self::command($socket, "AUTH LOGIN", '334');
-        self::command($socket, base64_encode($user), '334');
-        self::command($socket, base64_encode($pass), '235');
-
-        self::command($socket, "MAIL FROM:<{$user}>", '250');
-        self::command($socket, "RCPT TO:<{$to}>", '250');
-        self::command($socket, "DATA", '354');
-
-        $headers = "From: " . APP_NAME . " <{$user}>\r\n"
-                 . "To: <{$to}>\r\n"
-                 . "Reply-To: <{$replyTo}>\r\n"
-                 . "Subject: {$subject}\r\n"
-                 . "MIME-Version: 1.0\r\n"
-                 . "Content-Type: text/plain; charset=UTF-8\r\n\r\n";
-
-        fwrite($socket, $headers . $body . "\r\n.\r\n");
-        self::expect($socket, '250');
-
-        self::command($socket, "QUIT", '221');
-        fclose($socket);
-
-        return true;
-    }
-
-    private static function command($socket, string $cmd, string $expectedCode): void {
-        fwrite($socket, $cmd . "\r\n");
-        self::expect($socket, $expectedCode);
-    }
-
-    private static function expect($socket, string $expectedCode): void {
-        $response = '';
-        while ($line = fgets($socket, 515)) {
-            $response .= $line;
-            if (isset($line[3]) && $line[3] === ' ') {
-                break;
-            }
-        }
-        if (!str_starts_with($response, $expectedCode)) {
-            throw new Exception("Respuesta SMTP inesperada (se esperaba {$expectedCode}): {$response}");
-        }
-    }
-}
+        se

@@ -56,7 +56,11 @@
           <td style="font-size:.87rem"><?= isset($v->comision) ? number_format((float)$v->comision, 2) . '%' : '—' ?></td>
           <td>
             <?php if (!empty($v->usuario_id)): ?>
-              <span class="badge badge-green">Con acceso</span>
+              <?php if ($v->acceso_activo): ?>
+                <span class="badge badge-green">Con acceso</span>
+              <?php else: ?>
+                <span class="badge badge-danger">Acceso deshabilitado</span>
+              <?php endif; ?>
             <?php else: ?>
               <a href="<?= BASE_URL ?>/vendedor/otorgarAcceso/<?= $v->id ?>" class="badge badge-gold" style="text-decoration:none" title="Crear login para este vendedor">Otorgar acceso</a>
             <?php endif; ?>
@@ -65,6 +69,10 @@
           <td>
             <a href="<?= BASE_URL ?>/vendedor/editar/<?= $v->id ?>" class="btn btn-sm btn-dark" title="Editar">✏️</a>
             <a href="<?= BASE_URL ?>/vendedor/reasignar/<?= $v->id ?>" class="btn btn-sm btn-dark" style="margin-left:.3rem" title="Reasignar propiedades">🔄</a>
+            <?php if (!empty($v->usuario_id)): ?>
+              <a href="<?= BASE_URL ?>/vendedor/resetPassword/<?= $v->id ?>" class="btn btn-sm btn-dark" style="margin-left:.3rem" title="Generar nueva contraseña temporal">🔑</a>
+              <a href="<?= BASE_URL ?>/vendedor/toggleAcceso/<?= $v->id ?>" class="btn btn-sm btn-dark" style="margin-left:.3rem" title="<?= $v->acceso_activo ? 'Deshabilitar acceso' : 'Reactivar acceso' ?>"><?= $v->acceso_activo ? '🚫' : '✅' ?></a>
+            <?php endif; ?>
             <a href="<?= BASE_URL ?>/vendedor/eliminar/<?= $v->id ?>" class="btn btn-sm btn-danger btn-delete" style="margin-left:.3rem" title="Eliminar">🗑️</a>
           </td>
         </tr>

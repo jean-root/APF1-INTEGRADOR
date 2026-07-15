@@ -58,6 +58,21 @@
   </div>
 </div>
 
+<!-- Reportes exportables (Excel/PDF) -->
+<div class="admin-card" style="margin-bottom:1.5rem">
+  <div class="admin-card__header"><span class="admin-card__title">📊 Reportes</span></div>
+  <p style="padding:0 0 .75rem;color:var(--text-3);font-size:.85rem">Exporta el listado completo de cada módulo en Excel (CSV) o PDF (vista imprimible).</p>
+  <div style="display:flex;flex-wrap:wrap;gap:1.25rem">
+    <?php foreach (['propiedades' => '🏠 Propiedades', 'vendedores' => '👤 Vendedores', 'mensajes' => '✉️ Mensajes'] as $tipoRep => $etiqueta): ?>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        <span style="font-size:.87rem;font-weight:600"><?= $etiqueta ?>:</span>
+        <a href="<?= BASE_URL ?>/reporte/csv/<?= $tipoRep ?>" class="btn btn-sm btn-dark">⬇️ Excel</a>
+        <a href="<?= BASE_URL ?>/reporte/pdf/<?= $tipoRep ?>" class="btn btn-sm btn-dark" target="_blank">🖨️ PDF</a>
+      </div>
+    <?php endforeach; ?>
+  </div>
+</div>
+
 <!-- Últimas propiedades -->
 <div class="admin-card">
   <div class="admin-card__header">

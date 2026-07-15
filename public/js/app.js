@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flashMsg.style.transform = 'translateY(-10px)';
       flashMsg.style.transition = 'all .4s';
       setTimeout(() => flashMsg.remove(), 400);
-    }, 3500);
+    }, 30000);
   }
 
   // ── 10. FORM VALIDATION (contacto + admin) ──────────────────

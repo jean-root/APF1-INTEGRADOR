@@ -53,22 +53,19 @@
   </p>
 </div>
 
-<!-- Historial -->
+<!-- Enviar correo al cliente -->
 <div class="admin-card" style="max-width:700px;margin-top:1.5rem">
-  <div class="admin-card__header"><span class="admin-card__title">📋 Historial de este lead</span></div>
-  <?php if (empty($historial)): ?>
-    <p style="color:var(--text-3);padding:.5rem 0">Todavía no hay actividad registrada.</p>
-  <?php else: ?>
-    <ul style="list-style:none;padding:0;margin:.5rem 0 0;border-left:2px solid var(--border)">
-      <?php foreach ($historial as $h): ?>
-        <li style="padding:.4rem 0 .4rem 1rem;font-size:.85rem;position:relative">
-          <span style="position:absolute;left:-6px;top:.6rem;width:10px;height:10px;border-radius:50%;background:var(--accent)"></span>
-          <span style="color:var(--text-3)"><?= date('d/m/Y H:i', strtotime($h->created_at)) ?></span> —
-          <strong><?= htmlspecialchars($h->usuario_nombre) ?></strong>: <?= htmlspecialchars($h->detalle ?? '') ?>
-        </li>
-      <?php endforeach; ?>
-    </ul>
-  <?php endif; ?>
-</div>
+  <div class="admin-card__header"><span class="admin-card__title">✉️ Enviar correo a <?= htmlspecialchars($lead->nombre) ?></span></div>
 
-<?php require_once APP_ROOT . '/app/views/layouts/admin_footer.php'; ?>
+  <form method="POST" action="<?= BASE_URL ?>/panel/enviarCorreo/<?= $lead->id ?>" style="margin-top:.75rem;display:flex;flex-direction:column;gap:.75rem">
+    <?= $this->csrfField() ?>
+    <div>
+      <label style="font-size:.8rem;color:var(--text-3);display:block;margin-bottom:.25rem">Para</label>
+      <input type="text" value="<?= htmlspecialchars($lead->email) ?>" disabled style="width:100%;background:var(--bg-2)">
+    </div>
+    <div>
+      <label style="font-size:.8rem;color:var(--text-3);display:block;margin-bottom:.25rem">Asunto</label>
+      <input type="text" name="asunto" required maxlength="150" placeholder="Ej: Información sobre la propiedad que consultaste" style="width:100%">
+    </div>
+    <div>
+      <label style="font-size:.8rem;color:var(--text-3);display:block;margin-bottom:.25rem">Mensaje</

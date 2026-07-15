@@ -30,7 +30,7 @@
 
   <hr style="margin:1.2rem 0;border-color:var(--border)">
 
-  <p style="white-space:pre-wrap;line-height:1.6"><?= htmlspecialchars($mensaje->mensaje) ?></p>
+  <p style="white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-width:100%;line-height:1.6"><?= htmlspecialchars($mensaje->mensaje) ?></p>
 </div>
 
 <!-- Pipeline de ventas (HU-28): asignación a vendedor y estado actual -->

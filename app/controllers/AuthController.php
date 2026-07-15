@@ -45,6 +45,7 @@ class AuthController extends Controller {
                             $this->redirect('auth/cambiar');
                         }
 
+                        $this->flash('success', 'Inicio de sesión exitoso. Bienvenido/a, ' . $user->nombre . '.');
                         $this->redirect($this->destinoPorRol($_SESSION['usuario_rol']));
                     }
                 } else {
@@ -60,7 +61,9 @@ class AuthController extends Controller {
 
     // GET /auth/logout
     public function logout(): void {
-        session_destroy();
+        $_SESSION = [];
+        session_regenerate_id(true);
+        $this->flash('success', 'Sesión cerrada correctamente.');
         $this->redirect('auth/login');
     }
 

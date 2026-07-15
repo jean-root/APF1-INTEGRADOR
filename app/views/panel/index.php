@@ -39,44 +39,22 @@
   </div>
 </div>
 
-<!-- Mis leads -->
+<!-- Accesos rápidos a las secciones nuevas -->
 <div class="admin-card">
   <div class="admin-card__header">
-    <span class="admin-card__title">🎯 Mis Leads Asignados</span>
+    <span class="admin-card__title">🎯 Prospectos y seguimiento</span>
   </div>
-  <table class="data-table">
-    <thead>
-      <tr><th>#</th><th>Contacto</th><th>Asunto</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr>
-    </thead>
-    <tbody>
-      <?php if (empty($leads)): ?>
-        <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-3)">Aún no tienes leads asignados.</td></tr>
-      <?php else: ?>
-        <?php foreach ($leads as $lead):
-          $badgeEstado = match ($lead->estado ?? 'nuevo') {
-            'nuevo' => 'badge-gold', 'contactado', 'visita_agendada' => 'badge-blue',
-            'cerrado' => 'badge-green', 'perdido' => 'badge-danger', default => 'badge-gray',
-          };
-        ?>
-        <tr>
-          <td style="color:var(--text-3);font-size:.8rem">#<?= $lead->id ?></td>
-          <td>
-            <strong><?= htmlspecialchars($lead->nombre) ?></strong>
-            <div style="font-size:.75rem;color:var(--text-3)"><?= htmlspecialchars($lead->telefono ?: $lead->email) ?></div>
-          </td>
-          <td style="font-size:.87rem"><?= htmlspecialchars($lead->asunto ?: substr($lead->mensaje, 0, 40)) ?></td>
-          <td><span class="badge <?= $badgeEstado ?>"><?= htmlspecialchars(Mensaje::etiquetaEstado($lead->estado ?? 'nuevo')) ?></span></td>
-          <td style="font-size:.8rem"><?= date('d/m/Y', strtotime($lead->created_at)) ?></td>
-          <td><a href="<?= BASE_URL ?>/panel/mensaje/<?= $lead->id ?>" class="btn btn-sm btn-dark">Ver / Actualizar</a></td>
-        </tr>
-        <?php endforeach; ?>
-      <?php endif; ?>
-    </tbody>
-  </table>
+  <p style="padding:0 0 1rem;color:var(--text-3);font-size:.87rem">
+    Revisa el detalle de cada prospecto en <strong>Prospectos</strong>, o su avance visual por etapas en <strong>Seguimiento de Ventas</strong>, ambos en el menú lateral.
+  </p>
+  <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+    <a href="<?= BASE_URL ?>/panel/prospectos" class="btn btn-dark">🎯 Ver mis Prospectos</a>
+    <a href="<?= BASE_URL ?>/panel/seguimiento" class="btn btn-dark">📊 Ver Seguimiento de Ventas</a>
+  </div>
 </div>
 
 <!-- Mis propiedades -->
-<div class="admin-card" style="margin-top:1.5rem">
+<div class="admin-card" id="mis-propiedades" style="margin-top:1.5rem;scroll-margin-top:1.5rem">
   <div class="admin-card__header">
     <span class="admin-card__title">🏠 Mis Propiedades</span>
   </div>

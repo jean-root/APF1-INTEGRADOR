@@ -22,6 +22,13 @@
         <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
 
+      <?php if (!empty($_SESSION['flash'])): ?>
+        <?php $flash = $_SESSION['flash']; unset($_SESSION['flash']); ?>
+        <div class="flash-msg alert alert-<?= $flash['type'] === 'success' ? 'success' : 'error' ?>">
+          <?= htmlspecialchars($flash['message']) ?>
+        </div>
+      <?php endif; ?>
+
       <form method="POST" action="" data-validate>
         <?= $this->csrfField() ?>
 

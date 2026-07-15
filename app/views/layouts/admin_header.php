@@ -27,9 +27,22 @@
     <nav class="sidebar__nav">
       <?php if ($rolUsuario === 'vendedor'): ?>
         <p class="sidebar__nav-title">Mi Panel</p>
-        <a href="<?= BASE_URL ?>/panel" class="active">
+        <a href="<?= BASE_URL ?>/panel" class="<?= ($titulo ?? '') === 'Mi Panel de Vendedor' ? 'active' : '' ?>">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-          Mis Propiedades y Leads
+          Dashboard
+        </a>
+        <a href="<?= BASE_URL ?>/panel/prospectos" class="<?= ($titulo ?? '') === 'Mis Prospectos' ? 'active' : '' ?>">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z" opacity="0"/><path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+          Prospectos
+        </a>
+        <a href="<?= BASE_URL ?>/panel/seguimiento" class="<?= ($titulo ?? '') === 'Seguimiento de Ventas' ? 'active' : '' ?>">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 13l3-3 3 3 5-5"/></svg>
+          Seguimiento de Ventas
+        </a>
+        <p class="sidebar__nav-title">Cartera</p>
+        <a href="<?= BASE_URL ?>/panel#mis-propiedades" class="">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Mis Propiedades
         </a>
       <?php elseif ($rolUsuario === 'supervisor'): ?>
         <p class="sidebar__nav-title">Principal</p>
@@ -92,7 +105,7 @@
       </div>
       <div style="display:flex;align-items:center;gap:.75rem">
         <a href="<?= BASE_URL ?>/auth/cambiar" class="btn btn-sm btn-dark">Cambiar clave</a>
-        <a href="<?= BASE_URL ?>/auth/logout" class="btn btn-sm btn-danger">Salir</a>
+        <a href="<?= BASE_URL ?>/auth/logout" class="btn btn-sm btn-danger">Cerrar sesión</a>
       </div>
     </header>
 

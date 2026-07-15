@@ -25,6 +25,16 @@ class VendedorController extends Controller {
     public function index(): void {
         Middleware::requireRole(['supervisor']);
         $vendedores = $this->vendedor->findAll('nombre ASC');
+
+        // Adjuntar el estado de la cuenta de acceso (activo/inactivo) de cada vendedor con login
+        foreach ($vendedores as $v) {
+            $v->acceso_activo = null;
+            if (!empty($v->usuario_id)) {
+                $cuenta = $this->usuario->findById((int)$v->usuario_id);
+                $v->acceso_activo = $cuenta ? (int)($cuenta->estado ?? 1) === 1 : null;
+            }
+        }
+
         $this->render('vendedores/index', [
             'titulo'     => 'Gestión de Vendedores',
             'vendedores' => $vendedores,
@@ -89,6 +99,52 @@ class VendedorController extends Controller {
 
         $this->crearAccesoParaVendedor((int)$id, $vendedor->nombre . ' ' . $vendedor->apellido, $vendedor->email);
         $this->flash('success', 'Acceso creado. Comparte la contraseña temporal con el vendedor.');
+        $this->redirect('vendedor');
+    }
+
+    // GET /vendedor/resetPassword/{id} (genera una nueva contraseña temporal para un vendedor que ya tiene acceso)
+    public function resetPassword(string $id = '0'): void {
+        Middleware::requireRole(['supervisor']);
+        $vendedor = $this->vendedor->findById((int)$id);
+        if (!$vendedor || empty($vendedor->usuario_id)) {
+            $this->flash('error', 'Este vendedor no tiene una cuenta de acceso todavía.');
+            $this->redirect('vendedor');
+        }
+
+        $passwordPlano = $this->generarPasswordTemporal();
+        $this->usuario->update((int)$vendedor->usuario_id, [
+            'password' => password_hash($passwordPlano, PASSWORD_BCRYPT),
+            'password_reset_required' => 1,
+        ]);
+
+        $_SESSION['temp_password']   = $passwordPlano;
+        $_SESSION['temp_user_email'] = $vendedor->email;
+        LogAccion::registrar('editar', 'usuario', (int)$vendedor->usuario_id, 'Contraseña reiniciada para vendedor ' . $vendedor->nombre . ' ' . $vendedor->apellido);
+        $this->flash('success', 'Nueva contraseña temporal generada.');
+        $this->redirect('vendedor');
+    }
+
+    // GET /vendedor/toggleAcceso/{id} (deshabilita o reactiva el login del vendedor, sin borrar la cuenta)
+    public function toggleAcceso(string $id = '0'): void {
+        Middleware::requireRole(['supervisor']);
+        $vendedor = $this->vendedor->findById((int)$id);
+        if (!$vendedor || empty($vendedor->usuario_id)) {
+            $this->flash('error', 'Este vendedor no tiene una cuenta de acceso todavía.');
+            $this->redirect('vendedor');
+        }
+
+        $cuenta = $this->usuario->findById((int)$vendedor->usuario_id);
+        if (!$cuenta) {
+            $this->flash('error', 'No se encontró la cuenta de acceso vinculada.');
+            $this->redirect('vendedor');
+        }
+
+        $nuevoEstado = ((int)($cuenta->estado ?? 1) === 1) ? 0 : 1;
+        $this->usuario->update((int)$cuenta->id, ['estado' => $nuevoEstado]);
+
+        $accion = $nuevoEstado === 1 ? 'reactivado' : 'deshabilitado';
+        LogAccion::registrar('editar', 'usuario', (int)$cuenta->id, 'Acceso ' . $accion . ' para vendedor ' . $vendedor->nombre . ' ' . $vendedor->apellido);
+        $this->flash('success', 'Acceso ' . $accion . ' correctamente.');
         $this->redirect('vendedor');
     }
 

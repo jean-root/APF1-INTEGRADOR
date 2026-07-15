@@ -12,6 +12,7 @@ require_once APP_ROOT . '/app/models/Vendedor.php';
 require_once APP_ROOT . '/app/models/Propiedad.php';
 require_once APP_ROOT . '/app/models/Mensaje.php';
 require_once APP_ROOT . '/app/models/LogAccion.php';
+require_once APP_ROOT . '/core/Mailer.php';
 
 class PanelController extends Controller {
 
@@ -69,6 +70,43 @@ class PanelController extends Controller {
         ]);
     }
 
+    // GET /panel/prospectos → listado completo de leads/prospectos asignados al vendedor
+    public function prospectos(): void {
+        Middleware::requireRole(['vendedor']);
+        $vendedor = $this->vendedorActual();
+
+        $leads = $this->mensaje->porVendedor((int) $vendedor->id);
+
+        $this->render('panel/prospectos', [
+            'titulo'   => 'Mis Prospectos',
+            'vendedor' => $vendedor,
+            'leads'    => $leads,
+        ]);
+    }
+
+    // GET /panel/seguimiento → tablero de seguimiento de ventas (pipeline por estado)
+    public function seguimiento(): void {
+        Middleware::requireRole(['vendedor']);
+        $vendedor = $this->vendedorActual();
+
+        $leads = $this->mensaje->porVendedor((int) $vendedor->id);
+
+        // Agrupar los leads por estado para el tablero de seguimiento
+        $columnas = array_fill_keys(Mensaje::estadosValidos(), []);
+        foreach ($leads as $lead) {
+            $estado = $lead->estado ?? 'nuevo';
+            if (isset($columnas[$estado])) {
+                $columnas[$estado][] = $lead;
+            }
+        }
+
+        $this->render('panel/seguimiento', [
+            'titulo'   => 'Seguimiento de Ventas',
+            'vendedor' => $vendedor,
+            'columnas' => $columnas,
+        ]);
+    }
+
     // GET /panel/mensaje/{id} → detalle de un lead propio + historial
     public function mensaje(string $id = '0'): void {
         Middleware::requireRole(['vendedor']);
@@ -82,6 +120,7 @@ class PanelController extends Controller {
         $this->render('panel/mensaje', [
             'titulo'    => 'Lead de ' . $lead->nombre,
             'lead'      => $lead,
+            'vendedor'  => $vendedor,
             'historial' => $this->logAccion->historialDeEntidad('mensaje', (int) $id),
         ]);
     }
@@ -107,9 +146,3 @@ class PanelController extends Controller {
                 $this->flash('success', 'Estado del lead actualizado.');
             } else {
                 $this->flash('error', 'Estado no válido.');
-            }
-        }
-
-        $this->redirect('panel/mensaje/' . $id);
-    }
-}

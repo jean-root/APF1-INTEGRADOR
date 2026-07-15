@@ -102,6 +102,28 @@ CREATE TABLE IF NOT EXISTS `log_acciones` (
 ) ENGINE=InnoDB;
 
 -- ──────────────────────────────────────────
+--  TABLA: auditoria (auditoría a nivel de motor de BD, vía triggers)
+--  Complementa a log_acciones: esta tabla la llenan triggers de MySQL,
+--  no la aplicación, por lo que registra cambios incluso si ocurrieran
+--  fuera del sistema web. Ver database/migrations/005_auditoria_trigger.sql
+--  para la definición completa de los triggers AFTER INSERT/UPDATE/DELETE
+--  sobre propiedades, vendedores y usuarios.
+-- ──────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `auditoria` (
+  `id`               INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `tabla_afectada`   VARCHAR(50)  NOT NULL,
+  `operacion`        ENUM('INSERT','UPDATE','DELETE') NOT NULL,
+  `registro_id`      INT UNSIGNED NOT NULL,
+  `datos_anteriores` JSON NULL,
+  `datos_nuevos`     JSON NULL,
+  `usuario_bd`       VARCHAR(150) NOT NULL,
+  `fecha_hora`       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX `idx_auditoria_tabla` (`tabla_afectada`),
+  INDEX `idx_auditoria_registro` (`registro_id`),
+  INDEX `idx_auditoria_fecha` (`fecha_hora`)
+) ENGINE=InnoDB;
+
+-- ──────────────────────────────────────────
 --  INDICES DE OPTIMIZACION (consultas frecuentes)
 -- ──────────────────────────────────────────
 CREATE INDEX `idx_propiedades_vendedor`   ON `propiedades` (`vendedor_id`);

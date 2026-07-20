@@ -30,7 +30,7 @@
 
   <hr style="margin:1.2rem 0;border-color:var(--border)">
 
-  <p style="white-space:pre-wrap;line-height:1.6"><?= htmlspecialchars($lead->mensaje) ?></p>
+  <p style="white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-width:100%;line-height:1.6"><?= htmlspecialchars($lead->mensaje) ?></p>
 </div>
 
 <!-- Actualizar estado del pipeline -->
@@ -68,4 +68,34 @@
       <input type="text" name="asunto" required maxlength="150" placeholder="Ej: Información sobre la propiedad que consultaste" style="width:100%">
     </div>
     <div>
-      <label style="font-size:.8rem;color:var(--text-3);display:block;margin-bottom:.25rem">Mensaje</
+      <label style="font-size:.8rem;color:var(--text-3);display:block;margin-bottom:.25rem">Mensaje</label>
+      <textarea name="cuerpo" required rows="6" placeholder="Escribe el mensaje para el cliente..." style="width:100%;resize:vertical"></textarea>
+    </div>
+    <div>
+      <button type="submit" class="btn btn-sm btn-primary">✉️ Enviar correo</button>
+    </div>
+  </form>
+  <p style="font-size:.8rem;color:var(--text-3);margin-top:.75rem">
+    El cliente recibirá el correo firmado con tu nombre y podrá responderte directamente a <?= htmlspecialchars($vendedor->email ?? 'tu correo') ?>. El envío queda registrado en el historial de este lead.
+  </p>
+</div>
+
+<!-- Historial -->
+<div class="admin-card" style="max-width:700px;margin-top:1.5rem">
+  <div class="admin-card__header"><span class="admin-card__title">📋 Historial de este lead</span></div>
+  <?php if (empty($historial)): ?>
+    <p style="color:var(--text-3);padding:.5rem 0">Todavía no hay actividad registrada.</p>
+  <?php else: ?>
+    <ul style="list-style:none;padding:0;margin:.5rem 0 0;border-left:2px solid var(--border)">
+      <?php foreach ($historial as $h): ?>
+        <li style="padding:.4rem 0 .4rem 1rem;font-size:.85rem;position:relative">
+          <span style="position:absolute;left:-6px;top:.6rem;width:10px;height:10px;border-radius:50%;background:var(--accent)"></span>
+          <span style="color:var(--text-3)"><?= date('d/m/Y H:i', strtotime($h->created_at)) ?></span> —
+          <strong><?= htmlspecialchars($h->usuario_nombre) ?></strong>: <?= htmlspecialchars($h->detalle ?? '') ?>
+        </li>
+      <?php endforeach; ?>
+    </ul>
+  <?php endif; ?>
+</div>
+
+<?php require_once APP_ROOT . '/app/views/layouts/admin_footer.php'; ?>

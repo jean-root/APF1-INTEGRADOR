@@ -146,3 +146,51 @@ class PanelController extends Controller {
                 $this->flash('success', 'Estado del lead actualizado.');
             } else {
                 $this->flash('error', 'Estado no válido.');
+            }
+        }
+
+        $this->redirect('panel/mensaje/' . $id);
+    }
+
+    // POST /panel/enviarCorreo/{id} → el vendedor le envía un correo directo al prospecto
+    public function enviarCorreo(string $id = '0'): void {
+        Middleware::requireRole(['vendedor']);
+        $vendedor = $this->vendedorActual();
+
+        $lead = $this->mensaje->findById((int) $id);
+        if (!$lead || (int) $lead->vendedor_id !== (int) $vendedor->id) {
+            $this->redirect('panel');
+        }
+
+        if ($this->isPost()) {
+            $this->requireCsrf();
+            $asunto  = $this->sanitize($_POST['asunto'] ?? '');
+            $cuerpo  = trim((string) ($_POST['cuerpo'] ?? ''));
+
+            if ($asunto === '' || $cuerpo === '') {
+                $this->flash('error', 'Completa el asunto y el mensaje antes de enviar.');
+            } elseif (empty(MAIL_USER) || empty(MAIL_PASS)) {
+                $this->flash('error', 'El envío de correo no está configurado en este entorno (faltan credenciales SMTP).');
+            } else {
+                $enviado = Mailer::enviarCorreoVendedor(
+                    $lead->email,
+                    $lead->nombre,
+                    $vendedor->nombre . ' ' . $vendedor->apellido,
+                    $vendedor->email ?? '',
+                    $asunto,
+                    $cuerpo
+                );
+
+                if ($enviado) {
+                    LogAccion::registrar('enviar_correo', 'mensaje', (int) $id,
+                        'Correo enviado a ' . $lead->email . ' — asunto: ' . $asunto);
+                    $this->flash('success', 'Correo enviado a ' . $lead->email . '.');
+                } else {
+                    $this->flash('error', 'No se pudo enviar el correo. Intenta nuevamente.');
+                }
+            }
+        }
+
+        $this->redirect('panel/mensaje/' . $id);
+    }
+}

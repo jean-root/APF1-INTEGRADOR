@@ -92,4 +92,12 @@
           </td>
           <td style="font-size:.8rem;color:var(--text-3)">#<?= $a->registro_id ?></td>
           <td style="font-size:.75rem;color:var(--text-3);max-width:220px;overflow-wrap:anywhere"><?= htmlspecialchars($a->datos_anteriores ?? '—') ?></td>
-          <td style="font-size:.75rem;color:var(--text-3);max-width:220px;overflow-wrap:anywhere"><?= htmlspecialchars($a->datos_nuevos ?? '—') ?></t
+          <td style="font-size:.75rem;color:var(--text-3);max-width:220px;overflow-wrap:anywhere"><?= htmlspecialchars($a->datos_nuevos ?? '—') ?></td>
+        </tr>
+        <?php endforeach; ?>
+      <?php endif; ?>
+    </tbody>
+  </table>
+</div>
+
+<?php require_once APP_ROOT . '/app/views/layouts/admin_footer.php'; ?>

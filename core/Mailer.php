@@ -69,6 +69,9 @@ class Mailer {
             );
         } catch (Throwable $e) {
             error_log('[Mailer] Error al enviar correo del vendedor: ' . $e->getMessage());
+            @file_put_contents(APP_ROOT . '/logs/mail_debug.log',
+                date('Y-m-d H:i:s') . ' enviarCorreoVendedor: ' . $e->getMessage() . "\n",
+                FILE_APPEND);
             return false;
         }
     }
@@ -85,12 +88,54 @@ class Mailer {
         }
 
         self::expect($socket, '220');
-        self::command($socket, "EHLO " . APP_NAME, '250');
+        self::command($socket, "EHLO hogarideal.local", '250');
         self::command($socket, "STARTTLS", '220');
 
         if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
             throw new Exception('Fallo al negociar TLS con el servidor SMTP.');
         }
 
-        self::command($socket, "EHLO " . APP_NAME, '250');
-        se
+        self::command($socket, "EHLO hogarideal.local", '250');
+        self::command($socket, "AUTH LOGIN", '334');
+        self::command($socket, base64_encode($user), '334');
+        self::command($socket, base64_encode($pass), '235');
+
+        self::command($socket, "MAIL FROM:<{$user}>", '250');
+        self::command($socket, "RCPT TO:<{$to}>", '250');
+        self::command($socket, "DATA", '354');
+
+        $nombreRemitente = $fromDisplayName !== '' ? $fromDisplayName : APP_NAME;
+        $headers = "From: {$nombreRemitente} <{$user}>\r\n"
+                 . "To: <{$to}>\r\n"
+                 . "Reply-To: <{$replyTo}>\r\n"
+                 . "Subject: {$subject}\r\n"
+                 . "MIME-Version: 1.0\r\n"
+                 . "Content-Type: text/plain; charset=UTF-8\r\n\r\n";
+
+        fwrite($socket, $headers . $body . "\r\n.\r\n");
+        self::expect($socket, '250');
+
+        self::command($socket, "QUIT", '221');
+        fclose($socket);
+
+        return true;
+    }
+
+    private static function command($socket, string $cmd, string $expectedCode): void {
+        fwrite($socket, $cmd . "\r\n");
+        self::expect($socket, $expectedCode);
+    }
+
+    private static function expect($socket, string $expectedCode): void {
+        $response = '';
+        while ($line = fgets($socket, 515)) {
+            $response .= $line;
+            if (isset($line[3]) && $line[3] === ' ') {
+                break;
+            }
+        }
+        if (!str_starts_with($response, $expectedCode)) {
+            throw new Exception("Respuesta SMTP inesperada (se esperaba {$expectedCode}): {$response}");
+        }
+    }
+}
